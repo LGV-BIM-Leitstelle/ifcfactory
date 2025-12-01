@@ -138,7 +138,9 @@ class CachingMixin(ABC):
             return result
 
 
-def determine_type(element: object) -> Union[Type[Profile], Type[RepresentationItem], Type[ElementInterface]]:
+def determine_type(
+    element: object,
+) -> Union[Type[Profile], Type[RepresentationItem], Type[ElementInterface]]:
     """
     Determine the type of geometry element by checking its inheritance.
 

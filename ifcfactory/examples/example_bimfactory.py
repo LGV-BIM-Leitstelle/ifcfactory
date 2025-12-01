@@ -63,7 +63,11 @@ def create_basic_ifc_setup(project_name: str):
     # Create contexts
     model_context = ifcopenshell.api.context.add_context(model, context_type="Model")
     ifcopenshell.api.context.add_context(
-        model, context_type="Model", context_identifier="Body", target_view="MODEL_VIEW", parent=model_context
+        model,
+        context_type="Model",
+        context_identifier="Body",
+        target_view="MODEL_VIEW",
+        parent=model_context,
     )
 
     # Create site
@@ -136,7 +140,11 @@ def main():
             inst=building,
             children=[
                 # Example 1: Row 0 (Y=0) - positions (0,0), (1,0), (2,0), (3,0), (4,0)
-                BIMFactoryElement(type="IfcWall", name="Box Wall", children=[Box(width=5.0, depth=0.3, height=3.0)]),
+                BIMFactoryElement(
+                    type="IfcWall",
+                    name="Box Wall",
+                    children=[Box(width=5.0, depth=0.3, height=3.0)],
+                ),
                 Translate(
                     vec=(12.0, 0.0, 0.0),
                     item=BIMFactoryElement(type="IfcWall", name="Cube Wall", children=[Cube(size=4.0)]),
@@ -144,7 +152,9 @@ def main():
                 Translate(
                     vec=(24.0, 0.0, 0.0),
                     item=BIMFactoryElement(
-                        type="IfcWall", name="Cylinder Wall", children=[Cylinder(radius=1.5, height=4.0)]
+                        type="IfcWall",
+                        name="Cylinder Wall",
+                        children=[Cylinder(radius=1.5, height=4.0)],
                     ),
                 ),
                 Translate(
@@ -158,7 +168,9 @@ def main():
                 Translate(
                     vec=(48.0, 0.0, 0.0),
                     item=BIMFactoryElement(
-                        type="IfcBuildingElementProxy", name="Sphere Element", children=[Sphere(radius=1.5, detail=2)]
+                        type="IfcBuildingElementProxy",
+                        name="Sphere Element",
+                        children=[Sphere(radius=1.5, detail=2)],
                     ),
                 ),
             ],
@@ -192,20 +204,34 @@ def main():
                 # Example 2: Row 1 (Y=12) - positions (0,1), (1,1), (2,1), (3,1)
                 Translate(
                     vec=(0.0, 12.0, 0.0),
-                    item=BIMFactoryElement(type="IfcBeam", name="Rectangular Beam", children=[beam_geometry]),
+                    item=BIMFactoryElement(
+                        type="IfcBeam",
+                        name="Rectangular Beam",
+                        children=[beam_geometry],
+                    ),
                 ),
                 Translate(
                     vec=(12.0, 12.0, 0.0),
-                    item=BIMFactoryElement(type="IfcFlowSegment", name="Circular Pipe", children=[pipe_geometry]),
+                    item=BIMFactoryElement(
+                        type="IfcFlowSegment",
+                        name="Circular Pipe",
+                        children=[pipe_geometry],
+                    ),
                 ),
                 Translate(
                     vec=(24.0, 12.0, 0.0),
-                    item=BIMFactoryElement(type="IfcBeam", name="Elliptical Beam", children=[elliptical_beam]),
+                    item=BIMFactoryElement(
+                        type="IfcBeam",
+                        name="Elliptical Beam",
+                        children=[elliptical_beam],
+                    ),
                 ),
                 Translate(
                     vec=(36.0, 12.0, 0.0),
                     item=BIMFactoryElement(
-                        type="IfcBuildingElementProxy", name="Custom Extrusion", children=[custom_extrusion]
+                        type="IfcBuildingElementProxy",
+                        name="Custom Extrusion",
+                        children=[custom_extrusion],
                     ),
                 ),
             ],
@@ -240,7 +266,13 @@ def main():
         )
 
         # Custom mesh (simple pyramid)
-        vertices = [(0.0, 0.0, 0.0), (2.0, 0.0, 0.0), (2.0, 2.0, 0.0), (0.0, 2.0, 0.0), (1.0, 1.0, 3.0)]
+        vertices = [
+            (0.0, 0.0, 0.0),
+            (2.0, 0.0, 0.0),
+            (2.0, 2.0, 0.0),
+            (0.0, 2.0, 0.0),
+            (1.0, 1.0, 3.0),
+        ]
         faces = [
             [0, 1, 2, 3],
             [0, 1, 4],
@@ -256,22 +288,34 @@ def main():
                 # Example 3: Row 2 (Y=24) - positions (0,2), (1,2), (2,2), (3,2)
                 Translate(
                     vec=(0.0, 24.0, 0.0),
-                    item=BIMFactoryElement(type="IfcColumn", name="Elliptical Column", children=[elliptical_cylinder]),
+                    item=BIMFactoryElement(
+                        type="IfcColumn",
+                        name="Elliptical Column",
+                        children=[elliptical_cylinder],
+                    ),
                 ),
                 Translate(
                     vec=(12.0, 24.0, 0.0),
-                    item=BIMFactoryElement(type="IfcColumn", name="Octagonal Column", children=[ngon_cylinder]),
+                    item=BIMFactoryElement(
+                        type="IfcColumn",
+                        name="Octagonal Column",
+                        children=[ngon_cylinder],
+                    ),
                 ),
                 Translate(
                     vec=(24.0, 24.0, 0.0),
                     item=BIMFactoryElement(
-                        type="IfcBuildingElementProxy", name="Hexagonal Mesh", children=[extruded_ngon_mesh]
+                        type="IfcBuildingElementProxy",
+                        name="Hexagonal Mesh",
+                        children=[extruded_ngon_mesh],
                     ),
                 ),
                 Translate(
                     vec=(36.0, 24.0, 0.0),
                     item=BIMFactoryElement(
-                        type="IfcBuildingElementProxy", name="Custom Pyramid", children=[custom_mesh]
+                        type="IfcBuildingElementProxy",
+                        name="Custom Pyramid",
+                        children=[custom_mesh],
                     ),
                 ),
             ],
@@ -346,17 +390,29 @@ def main():
                 # Example 5: Row 4 (Y=48) - positions (0,4), (1,4), (2,4), (3,4)
                 Translate(
                     vec=(0.0, 48.0, 0.0),
-                    item=BIMFactoryElement(type="IfcBuildingElementProxy", name="Original Box", children=[base_box]),
+                    item=BIMFactoryElement(
+                        type="IfcBuildingElementProxy",
+                        name="Original Box",
+                        children=[base_box],
+                    ),
                 ),
                 Translate(
                     vec=(12.0, 48.0, 0.0),
-                    item=BIMFactoryElement(type="IfcBuildingElementProxy", name="Moved Box", children=[base_box]),
+                    item=BIMFactoryElement(
+                        type="IfcBuildingElementProxy",
+                        name="Moved Box",
+                        children=[base_box],
+                    ),
                 ),
                 Translate(
                     vec=(24.0, 48.0, 0.0),
                     item=RotateZ(
                         degrees=45,
-                        item=BIMFactoryElement(type="IfcBuildingElementProxy", name="Rotated Box", children=[base_box]),
+                        item=BIMFactoryElement(
+                            type="IfcBuildingElementProxy",
+                            name="Rotated Box",
+                            children=[base_box],
+                        ),
                     ),
                 ),
                 Translate(
@@ -364,7 +420,9 @@ def main():
                     item=RotateZ(
                         degrees=30,
                         item=BIMFactoryElement(
-                            type="IfcBuildingElementProxy", name="Moved and Rotated Box", children=[base_box]
+                            type="IfcBuildingElementProxy",
+                            name="Moved and Rotated Box",
+                            children=[base_box],
                         ),
                     ),
                 ),
@@ -397,7 +455,10 @@ def main():
                                     operation=BooleanOperationTypes.Difference,
                                     children=[
                                         Rect(width=5.0, height=5.0),
-                                        Translate(vec=(1.0, 1.0), item=Rect(width=3.0, height=3.0)),
+                                        Translate(
+                                            vec=(1.0, 1.0),
+                                            item=Rect(width=3.0, height=3.0),
+                                        ),
                                     ],
                                 ),
                                 depth=5.0,
@@ -437,17 +498,22 @@ def main():
                     item=Boolean(
                         operation=BooleanOperationTypes.Difference,
                         children=[
-                            BIMFactoryElement(type="IfcWall", children=[Box(width=5.0, depth=0.3, height=3.0)]),
+                            BIMFactoryElement(
+                                type="IfcWall",
+                                children=[Box(width=5.0, depth=0.3, height=3.0)],
+                            ),
                             Translate(
                                 vec=(1.0, 0.0, 1.0),
                                 item=BIMFactoryElement(
-                                    type="IfcOpeningElement", children=[Box(width=1.0, depth=0.5, height=1.0)]
+                                    type="IfcOpeningElement",
+                                    children=[Box(width=1.0, depth=0.5, height=1.0)],
                                 ),
                             ),
                             Translate(
                                 vec=(3.0, 0.0, 1.0),
                                 item=BIMFactoryElement(
-                                    type="IfcOpeningElement", children=[Box(width=1.0, depth=0.5, height=1.0)]
+                                    type="IfcOpeningElement",
+                                    children=[Box(width=1.0, depth=0.5, height=1.0)],
                                 ),
                             ),
                         ],

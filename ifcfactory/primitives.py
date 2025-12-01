@@ -89,7 +89,10 @@ class Circle(Primitive, Profile):
             ifcopenshell.entity_instance: The created circular profile definition.
         """
         return model.createIfcCircleProfileDef(
-            "AREA", None, model.createIfcAxis2Placement2D(model.createIfcCartesianPoint((0.0, 0.0))), self.radius
+            "AREA",
+            None,
+            model.createIfcAxis2Placement2D(model.createIfcCartesianPoint((0.0, 0.0))),
+            self.radius,
         )
 
 
@@ -326,7 +329,8 @@ class EllipticalCylinder(Primitive, RepresentationItem):
             ifcopenshell.entity_instance: The created elliptical cylinder representation.
         """
         elliptical_cylinder = Extrusion(
-            basis=Ellipse(semi_axis1=self.semi_axis1, semi_axis2=self.semi_axis2), depth=self.height
+            basis=Ellipse(semi_axis1=self.semi_axis1, semi_axis2=self.semi_axis2),
+            depth=self.height,
         )
 
         # translate it so the base is at z=0 and the center is at the origin

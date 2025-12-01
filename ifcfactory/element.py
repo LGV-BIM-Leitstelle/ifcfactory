@@ -60,11 +60,11 @@ from ._internal.pset_base import PropertySetTemplate
 
 class BIMFactoryElement(Primitive, ElementInterface):
     """Factory element that can contain multiple representation items or other elements.
-    
+
     This class represents a BIM element that can contain multiple representation items
     or other elements. It provides functionality for building IFC entities and managing
     their relationships.
-    
+
     Attributes:
         guid (str): Unique identifier for the element. Auto-generated if not provided.
         name (Optional[str]): Human-readable name for the element.
@@ -92,7 +92,7 @@ class BIMFactoryElement(Primitive, ElementInterface):
 
     def __init__(self, **kwargs):
         """Initialize a new BIMFactoryElement.
-        
+
         Args:
             **kwargs: Keyword arguments for the element attributes.
                 - guid (str): Unique identifier. Auto-generated if not provided.
@@ -219,11 +219,15 @@ class BIMFactoryElement(Primitive, ElementInterface):
                     raise ValueError("Cannot assign spatial container to physical product")
             elif self.is_type_container and self.ifc_type.upper() == "IFCPROJECT":
                 ifcopenshell.api.project.assign_declaration(
-                    model, definitions=[ch.build(model) for ch in self.children], relating_context=element
+                    model,
+                    definitions=[ch.build(model) for ch in self.children],
+                    relating_context=element,
                 )
             else:
                 ifcopenshell.api.type.assign_type(
-                    model, related_objects=[element], relating_type=self.children[0].build(model)
+                    model,
+                    related_objects=[element],
+                    relating_type=self.children[0].build(model),
                 )
         if self.material:
             ifcopenshell.api.material.assign_material(model, products=[element], material=self.material.build(model))

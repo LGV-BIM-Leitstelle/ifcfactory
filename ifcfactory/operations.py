@@ -43,7 +43,14 @@ from pydantic import model_validator
 # Local imports
 from .element import BIMFactoryElement
 from ._internal.material_base import Style
-from ._internal.primitives_base import ElementInterface, Primitive, Profile, RepresentationItem, determine_type, get_qto_rules
+from ._internal.primitives_base import (
+    ElementInterface,
+    Primitive,
+    Profile,
+    RepresentationItem,
+    determine_type,
+    get_qto_rules,
+)
 
 
 class BooleanOperationTypes(str, Enum):
@@ -229,7 +236,13 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
                 # Apply transformation matrix to vertex
                 vertex = np.array([x, y, z, 1.0])
                 transformed_vertex = transform_matrix @ vertex
-                transformed_vertices.append([transformed_vertex[0], transformed_vertex[1], transformed_vertex[2]])
+                transformed_vertices.append(
+                    [
+                        transformed_vertex[0],
+                        transformed_vertex[1],
+                        transformed_vertex[2],
+                    ]
+                )
 
             # Create new triangulated face set with transformed vertices
             coord_list = model.createIfcCartesianPointList3D(transformed_vertices)

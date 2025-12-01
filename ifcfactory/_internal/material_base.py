@@ -94,16 +94,23 @@ class Material(Primitive):
             # build it only once
             return res
         inst = ifcopenshell.api.material.add_material(
-            model, name=self.name, **({"category": self.category} if model.schema != "IFC2X3" else {})
+            model,
+            name=self.name,
+            **({"category": self.category} if model.schema != "IFC2X3" else {}),
         )
 
         style = ifcopenshell.api.style.add_style(model)
         ifcopenshell.api.style.add_surface_style(
             model,
             style=style,
-            ifc_class="IfcSurfaceStyleShading" if model.schema != "IFC2X3" else "IfcSurfaceStyleRendering",
+            ifc_class=("IfcSurfaceStyleShading" if model.schema != "IFC2X3" else "IfcSurfaceStyleRendering"),
             attributes={
-                "SurfaceColour": {"Name": None, "Red": self.rgb[0], "Green": self.rgb[1], "Blue": self.rgb[1]},
+                "SurfaceColour": {
+                    "Name": None,
+                    "Red": self.rgb[0],
+                    "Green": self.rgb[1],
+                    "Blue": self.rgb[1],
+                },
                 "Transparency": self.transparency,
             },
         )
@@ -237,13 +244,22 @@ def assign_layer_to_representation(
 
         # Create surface style for the layer
         layer_color = model.create_entity(
-            "IfcColourRgb", Name="LayerColor", Red=color[0], Green=color[1], Blue=color[2]
+            "IfcColourRgb",
+            Name="LayerColor",
+            Red=color[0],
+            Green=color[1],
+            Blue=color[2],
         )
         surface_style_shading = model.create_entity(
-            "IfcSurfaceStyleShading", SurfaceColour=layer_color, Transparency=transparency
+            "IfcSurfaceStyleShading",
+            SurfaceColour=layer_color,
+            Transparency=transparency,
         )
         surface_style = model.create_entity(
-            "IfcSurfaceStyle", Name="LayerStyle", Side="POSITIVE", Styles=[surface_style_shading]
+            "IfcSurfaceStyle",
+            Name="LayerStyle",
+            Side="POSITIVE",
+            Styles=[surface_style_shading],
         )
 
         # Check if layer already exists
