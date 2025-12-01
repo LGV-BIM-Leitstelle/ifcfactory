@@ -1,0 +1,19 @@
+# IFC files (examples/outputs)
+*.ifc
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Poetry
+poetry.lock
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
