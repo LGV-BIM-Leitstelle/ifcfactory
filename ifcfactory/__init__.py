@@ -60,6 +60,9 @@ from ._internal.pset_base import PropertySetTemplate
 # Import units
 from ._internal.unit_base import A, Dim, E, J, L, M, N, P, T, V, K, pint_to_ifc, ureg
 
+# Import base classes for advanced usage
+from ._internal.primitives_base import ElementInterface, Primitive, Profile, RepresentationItem
+
 __all__ = [
     # Element classes
     "BIMFactoryElement",
@@ -103,4 +106,9 @@ __all__ = [
     "J",
     "P",
     "pint_to_ifc",
+    # Base classes (for advanced usage)
+    "ElementInterface",
+    "Primitive",
+    "Profile",
+    "RepresentationItem",
 ]
