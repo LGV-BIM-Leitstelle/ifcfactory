@@ -1,6 +1,16 @@
 # ifcfactory
 
+[![PyPI version](https://badge.fury.io/py/ifcfactory.svg)](https://pypi.org/project/ifcfactory/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-LGPL--2.1-blue.svg)](LICENSE)
+
 A modular geometry system for creating BIM elements with composable geometry creation.
+
+## Quick Install
+
+```bash
+pip install ifcfactory
+```
 
 ## Overview
 
@@ -175,3 +185,16 @@ This example demonstrates:
 
 For more comprehensive examples, see `examples/example_bimfactory.py` which demonstrates all features including
 transformations, boolean operations, materials, and property sets.
+
+## Links
+
+- **PyPI**: https://pypi.org/project/ifcfactory/
+- **GitHub**: https://github.com/LGV-BIM-Leitstelle/ifcfactory
+- **Issues**: https://github.com/LGV-BIM-Leitstelle/ifcfactory/issues
+
+## License
+
+This project is licensed under the GNU Lesser General Public License v2.1 (LGPL-2.1).
+
+**Copyright (C) 2025 Freie und Hansestadt Hamburg, Landesbetrieb Geoinformation und Vermessung**
+**BIM-Leitstelle, Ahmed Salem**
