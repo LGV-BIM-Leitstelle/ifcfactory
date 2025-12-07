@@ -183,8 +183,38 @@ This example demonstrates:
 - Organizing elements in a hierarchical BIM structure
 - Saving the result as an IFC file
 
-For more comprehensive examples, see `examples/example_bimfactory.py` which demonstrates all features including
+For more comprehensive examples, see the sections below which demonstrate all features including
 transformations, boolean operations, materials, and property sets.
+
+## Other examples
+
+### Example 1 - Complete Building
+
+![](img/Example_1_Complete_Building.png)
+
+### Example 2 - Profile Extrusions
+
+![](img/Example_2_Profile_Extrusions.png)
+
+### Example 3 - Advanced Primitives
+
+![](img/Example_3_Advanced_Primitives.png)
+
+### Example 4 - Styled Elements
+
+![](img/Example_4_Styled_Elements.png)
+
+### Example 5 - Transformations
+
+![](img/Example_5_Transformations.png)
+
+### Example 6 - Boolean Operations
+
+![](img/Example_6_Boolean_Operations.png)
+
+### Example 7 - Property Sets
+
+![](img/Example_7_Property_Sets.png)
 
 ## Links
 
