@@ -47,3 +47,9 @@ def test_example_main(module_name):
 
         # Cylinder(radius=1.5, height=4.0)
         assert walls['Cylinder Wall'].Representation.Representations[0].Items[0].SweptArea.is_a('IfcCircleProfileDef')
+    elif module_name == 'examples.08_type_objects':
+        # Assert that the example using type objects results in mapped representations (instanced geometries)
+        reps = result.by_type('IfcShapeRepresentation')
+        assert len(reps) == 60
+        assert reps[0].RepresentationType == 'SweptSolid'
+        assert all(r.RepresentationType == 'MappedRepresentation' for r in reps[1:])

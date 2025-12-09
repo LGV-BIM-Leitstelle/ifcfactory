@@ -214,6 +214,10 @@ transformations, boolean operations, materials, and property sets.
 
 ![](img/Example_7_Property_Sets.png)
 
+### Example 8 - Type Objects
+
+![](img/Example_8_Type_Objects.png)
+
 ## Links
 
 - **PyPI**: https://pypi.org/project/ifcfactory/
