@@ -37,7 +37,7 @@ from .element import BIMFactoryElement
 from ._internal.material_base import Material, Style
 
 # Import operations
-from .operations import Boolean, BooleanOperationTypes, RotateZ, Transform, Translate
+from .operations import Boolean, BooleanOperationTypes, Transform
 from .primitives import (
     Box,  # Profile classes; Representation item classes
     Circle,
@@ -84,8 +84,6 @@ __all__ = [
     # Operations
     "BooleanOperationTypes",
     "Boolean",
-    "Translate",
-    "RotateZ",
     "Transform",
     # Styles and materials
     "Style",

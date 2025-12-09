@@ -61,121 +61,20 @@ class BooleanOperationTypes(str, Enum):
     Difference = "DIFFERENCE"
 
 
-class Translate(Primitive, RepresentationItem, Profile, ElementInterface):
-    """Translation transformation that moves geometry by a specified vector."""
-
-    item: Union[RepresentationItem, Profile, ElementInterface]
-    vec: Union[Tuple[float, float], Tuple[float, float, float]]
-
-    model_config = {"arbitrary_types_allowed": True}
-
-    def build(self, model: ifcopenshell.file) -> ifcopenshell.entity_instance:
-        """
-        Build a translated representation by applying a translation vector.
-
-        Args:
-            model: The IFC model instance.
-
-        Returns:
-            ifcopenshell.entity_instance: The translated representation.
-
-        Raises:
-            Exception: If translation is not supported for the given geometry type.
-        """
-        # @todo currently not immutable/reentrant
-        item = self.item.build(model)
-        if item.is_a("IfcProduct"):
-            m4 = ifcopenshell.util.placement.get_local_placement(item.ObjectPlacement)
-            translation = np.eye(4)
-            # Handle both 2D and 3D vectors
-            if len(self.vec) == 2:
-                translation[0:2, 3] = self.vec
-            else:
-                translation[0:3, 3] = self.vec
-            ifcopenshell.api.geometry.edit_object_placement(model, item, matrix=translation @ m4)
-        elif item.is_a("IfcTriangulatedFaceSet"):
-            # Handle triangulated face sets by applying translation to vertices
-            vertices = list(item.Coordinates.CoordList)
-            translated_vertices = []
-
-            # Handle both 2D and 3D vectors
-            if len(self.vec) == 2:
-                dx, dy = self.vec
-                dz = 0.0
-            else:
-                dx, dy, dz = self.vec
-
-            for i in range(0, len(vertices), 3):
-                # Handle vertices as tuples
-                if isinstance(vertices[i], tuple):
-                    x, y, z = vertices[i]
-                else:
-                    x, y, z = vertices[i], vertices[i + 1], vertices[i + 2]
-                translated_vertices.append([x + dx, y + dy, z + dz])
-
-            # Create new triangulated face set with translated vertices
-            coord_list = model.createIfcCartesianPointList3D(translated_vertices)
-            return model.createIfcTriangulatedFaceSet(
-                coord_list, item.Normals, item.Closed, item.CoordIndex, item.PnIndex
-            )
-        else:
-            try:
-                shape_builder = ifcopenshell.util.shape_builder.ShapeBuilder(model)
-                shape_builder.translate(item, self.vec)
-            except Exception as e:
-                # If builder.translate fails, try to handle it as a triangulated face set
-                if "is not supported for translate() method" in str(e):
-                    raise Exception(
-                        f"Translation not supported for {item.is_a()}. Consider using a different geometry type."
-                    )
-                else:
-                    raise
-        return item
-
-
-class RotateZ(Primitive, RepresentationItem, Profile, ElementInterface):
-    """Z-axis rotation transformation."""
-
-    item: Union[RepresentationItem, Profile, ElementInterface]
-    degrees: float
-
-    # For accepting arbitrary types
-    model_config = {"arbitrary_types_allowed": True}
-
-    def build(self, model):
-        # @todo currently not immutable/reentrant
-        item = self.item.build(model)
-        if item.is_a("IfcProduct"):
-            m4 = ifcopenshell.util.placement.get_local_placement(item.ObjectPlacement)
-            theta = np.deg2rad(self.degrees)
-            rotation = np.array(
-                [
-                    [np.cos(theta), -np.sin(theta), 0.0, 0.0],
-                    [np.sin(theta), np.cos(theta), 0.0, 0.0],
-                    [0.0, 0.0, 1.0, 0.0],
-                    [0.0, 0.0, 0.0, 1.0],
-                ]
-            )
-            ifcopenshell.api.geometry.edit_object_placement(model, item, matrix=rotation @ m4)
-        else:
-            shape_builder = ifcopenshell.util.shape_builder.ShapeBuilder(model)
-            shape_builder.rotate(item, angle=self.degrees, counter_clockwise=True)
-        return item
-
-
 class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
     """Translation and rotation transformation that moves and rotates geometry."""
 
     item: Union[RepresentationItem, Profile, ElementInterface]
-    vec: Union[Tuple[float, float], Tuple[float, float, float]]
-    rotation: Optional[Tuple[float, Literal["X", "Y", "Z"]]] = None  # (angle, axis) where axis is "X", "Y", or "Z"
+    translation: Optional[Union[Tuple[float, float], Tuple[float, float, float]]] = None
+    rotation: Optional[Tuple[float, Literal["X", "Y", "Z"]]] = None  # (angle in degrees, axis) where axis is "X", "Y", or "Z"
 
     # For accepting item
     model_config = {"arbitrary_types_allowed": True}
 
     def build(self, model: ifcopenshell.file) -> ifcopenshell.entity_instance:
         """
-        Build a translated and/or rotated representation by applying a translation vector and optional rotation.
+        Build a translated and/or rotated representation by applying a translation vector and/or optional rotation.
+        In terms of order: first translation is applied, than rotation.
 
         Args:
             model: The IFC model instance.
@@ -186,85 +85,49 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
         Raises:
             Exception: If transformation is not supported for the given geometry type.
         """
-        # @todo currently not immutable/reentrant
         item = self.item.build(model)
+        
+        has_rotation = self.rotation is not None and abs(self.rotation[0]) > 1.e-9
+        has_translation = self.translation is not None
+
+        transform = np.eye(4)
+
+        if has_translation:
+            transform[0:len(self.translation), 3] = self.translation
+
+        if has_rotation:
+            angle, axis = self.rotation
+            rotation = ifcopenshell.util.placement.rotation(angle, axis)
+            transform = rotation @ transform
+
         if item.is_a("IfcProduct"):
+            # @todo currently not immutable/reentrant
             m4 = ifcopenshell.util.placement.get_local_placement(item.ObjectPlacement)
-            transform = np.eye(4)
-            # Handle both 2D and 3D vectors
-            if len(self.vec) == 2:
-                transform[0:2, 3] = self.vec
-            else:
-                transform[0:3, 3] = self.vec
-
-            # Apply rotation if specified
-            if self.rotation and self.rotation[0] != 0:
-                angle, axis = self.rotation
-                rotation = ifcopenshell.util.placement.rotation(angle, axis)
-                transform = rotation @ transform
-
             ifcopenshell.api.geometry.edit_object_placement(model, item, matrix=transform @ m4)
-        elif item.is_a("IfcTriangulatedFaceSet"):
+        elif item.is_a("IfcTessellatedFaceSet"):
             # Handle triangulated face sets by applying transformation to vertices
-            vertices = list(item.Coordinates.CoordList)
-            transformed_vertices = []
-
-            # Handle both 2D and 3D vectors
-            if len(self.vec) == 2:
-                dx, dy = self.vec
-                dz = 0.0
-            else:
-                dx, dy, dz = self.vec
-
-            # Build transformation matrix for vertices
-            transform_matrix = np.eye(4)
-            transform_matrix[0:3, 3] = [dx, dy, dz]
-
-            # Apply rotation if specified
-            if self.rotation and self.rotation[0] != 0:
-                angle, axis = self.rotation
-                rotation_matrix = ifcopenshell.util.placement.rotation(angle, axis)
-                transform_matrix = rotation_matrix @ transform_matrix
-
-            for i in range(0, len(vertices), 3):
-                # Handle vertices as tuples
-                if isinstance(vertices[i], tuple):
-                    x, y, z = vertices[i]
-                else:
-                    x, y, z = vertices[i], vertices[i + 1], vertices[i + 2]
-
-                # Apply transformation matrix to vertex
-                vertex = np.array([x, y, z, 1.0])
-                transformed_vertex = transform_matrix @ vertex
-                transformed_vertices.append(
-                    [
-                        transformed_vertex[0],
-                        transformed_vertex[1],
-                        transformed_vertex[2],
-                    ]
-                )
-
-            # Create new triangulated face set with transformed vertices
+            vertices = np.array(list(item.Coordinates.CoordList))
+            # Homogenize coordinates
+            vertices = np.column_stack((vertices, np.ones_like(vertices)))
+            transformed_vertices = np.array([m4 @ v for v in vertices]).tolist()
+            # Create new triangulated/tessellated face set with transformed vertices
+            # with remaining attributes copied over from the original instance
             coord_list = model.createIfcCartesianPointList3D(transformed_vertices)
-            return model.createIfcTriangulatedFaceSet(
-                coord_list, item.Normals, item.Closed, item.CoordIndex, item.PnIndex
+            return model.create_entity(item.is_a(),
+                coord_list, *list(item)[1:]
             )
         else:
-            try:
-                shape_builder = ifcopenshell.util.shape_builder.ShapeBuilder(model)
-                shape_builder.translate(item, self.vec)
-                # Note: builder.rotate() might not exist, so we handle rotation separately
-                if self.rotation and self.rotation[0] != 0:
-                    # For non-IFC products, rotation might need special handling
-                    warnings.warn(f"Rotation not fully supported for {item.is_a()}")
-            except Exception as e:
-                # If builder.translate fails, try to handle it as a triangulated face set
-                if "is not supported for translate() method" in str(e):
-                    raise Exception(
-                        f"Transformation not supported for {item.is_a()}. Consider using a different geometry type."
-                    )
+            # @todo currently not immutable/reentrant
+            shape_builder = ifcopenshell.util.shape_builder.ShapeBuilder(model)
+            # NB: May raise Exception(f"{c} is not supported for translate() method.")
+            shape_builder.translate(item, self.translation)
+            if has_rotation:
+                angle, axis = self.rotation
+                if axis == "Z":
+                    # NB: May raise Exception(f"{c} is not supported for rotate() method.")
+                    shape_builder.rotate(item, self.translation, counter_clockwise=True)
                 else:
-                    raise
+                    raise Exception(f"Rotation around axis other than Z not supported for {item.is_a()}")
         return item
 
 
@@ -298,9 +161,9 @@ class Boolean(Primitive, RepresentationItem, Profile, ElementInterface):
             if self.operation != BooleanOperationTypes.Difference:
                 raise ValueError("Only difference supported on elements")
             for ch in self.children[1:]:
-                # Unwrap Translate and Style wrappers to get the actual element
+                # Unwrap Transform and Style wrappers to get the actual element
                 current_ch = ch
-                while isinstance(current_ch, (Translate, Style)):
+                while isinstance(current_ch, (Transform, Style)):
                     current_ch = current_ch.item
 
                 # Now check if it's a BIMFactoryElement with the correct type

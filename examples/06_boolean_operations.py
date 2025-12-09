@@ -38,8 +38,7 @@ from ifcfactory import (
     ExtrudedNgonAsMesh,
     MeshRepresentation,
     # Operations
-    Translate,
-    RotateZ,
+    Transform,
     Boolean,
     BooleanOperationTypes,
     # Materials and styling
@@ -56,8 +55,8 @@ def main(model, _, __, building):
         inst=building,
         children=[
             # Example 6: Row 5 (Y=60) - positions (0,5), (1,5), (2,5)
-            Translate(
-                vec=(0.0, 60.0, 0.0),
+            Transform(
+                translation=(0.0, 60.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcWall",
                     name="Wall with Profile Opening",
@@ -67,8 +66,8 @@ def main(model, _, __, building):
                                 operation=BooleanOperationTypes.Difference,
                                 children=[
                                     Rect(width=5.0, height=5.0),
-                                    Translate(
-                                        vec=(1.0, 1.0),
+                                    Transform(
+                                        translation=(1.0, 1.0),
                                         item=Rect(width=3.0, height=3.0),
                                     ),
                                 ],
@@ -85,14 +84,14 @@ def main(model, _, __, building):
     BIMFactoryElement(
         inst=building,
         children=[
-            Translate(
-                vec=(12.0, 60.0, 0.0),
+            Transform(
+                translation=(12.0, 60.0, 0.0),
                 item=Boolean(
                     operation=BooleanOperationTypes.Difference,
                     children=[
                         BIMFactoryElement(type="IfcWall", children=[Cube(size=5.0)]),
-                        Translate(
-                            vec=(2.0, 2.0, 2.0),
+                        Transform(
+                            translation=(2.0, 2.0, 2.0),
                             item=BIMFactoryElement(type="IfcOpeningElement", children=[Cube(size=1.5)]),
                         ),
                     ],
@@ -105,8 +104,8 @@ def main(model, _, __, building):
     BIMFactoryElement(
         inst=building,
         children=[
-            Translate(
-                vec=(24.0, 60.0, 0.0),
+            Transform(
+                translation=(24.0, 60.0, 0.0),
                 item=Boolean(
                     operation=BooleanOperationTypes.Difference,
                     children=[
@@ -114,15 +113,15 @@ def main(model, _, __, building):
                             type="IfcWall",
                             children=[Box(width=5.0, depth=0.3, height=3.0)],
                         ),
-                        Translate(
-                            vec=(1.0, 0.0, 1.0),
+                        Transform(
+                            translation=(1.0, 0.0, 1.0),
                             item=BIMFactoryElement(
                                 type="IfcOpeningElement",
                                 children=[Box(width=1.0, depth=0.5, height=1.0)],
                             ),
                         ),
-                        Translate(
-                            vec=(3.0, 0.0, 1.0),
+                        Transform(
+                            translation=(3.0, 0.0, 1.0),
                             item=BIMFactoryElement(
                                 type="IfcOpeningElement",
                                 children=[Box(width=1.0, depth=0.5, height=1.0)],

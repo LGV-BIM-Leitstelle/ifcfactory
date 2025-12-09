@@ -49,7 +49,7 @@ import numpy as np
 from icosphere import icosphere as icosphere_lib
 from pydantic import Field, PositiveFloat, model_validator
 
-from .operations import Translate
+from .operations import Transform
 from ._internal.primitives_base import Primitive, Profile, RepresentationItem
 
 
@@ -307,7 +307,7 @@ class Cylinder(Primitive, RepresentationItem):
         cylinder = Extrusion(basis=Circle(radius=self.radius), depth=self.height)
 
         # translate it so the base is at z=0 and the center is at the origin
-        return Translate(vec=(0.0, 0.0, 0.0), item=cylinder).build(model)
+        return Transform(translation=(0.0, 0.0, 0.0), item=cylinder).build(model)
 
 
 class EllipticalCylinder(Primitive, RepresentationItem):
@@ -334,7 +334,7 @@ class EllipticalCylinder(Primitive, RepresentationItem):
         )
 
         # translate it so the base is at z=0 and the center is at the origin
-        return Translate(vec=(0.0, 0.0, 0.0), item=elliptical_cylinder).build(model)
+        return Transform(translation=(0.0, 0.0, 0.0), item=elliptical_cylinder).build(model)
 
 
 class Sphere(Primitive, RepresentationItem):

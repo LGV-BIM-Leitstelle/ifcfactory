@@ -38,8 +38,7 @@ from ifcfactory import (
     ExtrudedNgonAsMesh,
     MeshRepresentation,
     # Operations
-    Translate,
-    RotateZ,
+    Transform,
     Boolean,
     BooleanOperationTypes,
     # Materials and styling
@@ -65,16 +64,16 @@ def main(model, _, __, building):
         inst=building,
         children=[
             # Example 4: Row 3 (Y=36) - positions (0,3), (1,3), (2,3)
-            Translate(
-                vec=(0.0, 36.0, 0.0),
+            Transform(
+                translation=(0.0, 36.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcWall",
                     name="Concrete Wall",
                     children=[Style(item=wall_geometry, rgb=(0.8, 0.8, 0.8))],
                 ),
             ),
-            Translate(
-                vec=(12.0, 36.0, 0.0),
+            Transform(
+                translation=(12.0, 36.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcColumn",
                     name="Wood Column",
@@ -82,8 +81,8 @@ def main(model, _, __, building):
                     material=wood,
                 ),
             ),
-            Translate(
-                vec=(24.0, 36.0, 0.0),
+            Transform(
+                translation=(24.0, 36.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBeam",
                     name="Steel Beam",

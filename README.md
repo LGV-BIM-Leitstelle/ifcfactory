@@ -64,9 +64,7 @@ ifcfactory/
 
 ### Operations
 
-- **`Translate(vec, item)`**: Move geometry in 3D space
-- **`RotateZ(degrees, item)`**: Rotate around Z-axis
-- **`Transform(matrix, item)`**: Apply 4x4 transformation matrix
+- **`Transform(matrix, item)`**: Apply a transformation (translation and/or rotation)
 - **`Boolean(operation, children)`**: Boolean operations (union, difference, intersection)
 - **`BooleanOperationTypes`**: Enum for boolean operation types
 

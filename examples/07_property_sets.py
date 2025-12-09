@@ -38,8 +38,7 @@ from ifcfactory import (
     ExtrudedNgonAsMesh,
     MeshRepresentation,
     # Operations
-    Translate,
-    RotateZ,
+    Transform,
     Boolean,
     BooleanOperationTypes,
     # Materials and styling
@@ -95,8 +94,8 @@ def main(model, _, __, building):
         inst=building,
         children=[
             # Example 7: Row 6 (Y=72) - positions (0,6), (1,6)
-            Translate(
-                vec=(0.0, 72.0, 0.0),
+            Transform(
+                translation=(0.0, 72.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcWall",
                     name="Wall with Properties",
@@ -104,8 +103,8 @@ def main(model, _, __, building):
                     psets=[wall_properties],
                 ),
             ),
-            Translate(
-                vec=(12.0, 72.0, 0.0),
+            Transform(
+                translation=(12.0, 72.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcColumn",
                     name="Column with Properties",

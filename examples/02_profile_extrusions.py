@@ -38,8 +38,7 @@ from ifcfactory import (
     ExtrudedNgonAsMesh,
     MeshRepresentation,
     # Operations
-    Translate,
-    RotateZ,
+    Transform,
     Boolean,
     BooleanOperationTypes,
     # Materials and styling
@@ -67,32 +66,32 @@ def main(model, _, __, building):
         inst=building,
         children=[
             # Example 2: Row 1 (Y=12) - positions (0,1), (1,1), (2,1), (3,1)
-            Translate(
-                vec=(0.0, 12.0, 0.0),
+            Transform(
+                translation=(0.0, 12.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBeam",
                     name="Rectangular Beam",
                     children=[beam_geometry],
                 ),
             ),
-            Translate(
-                vec=(12.0, 12.0, 0.0),
+            Transform(
+                translation=(12.0, 12.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcFlowSegment",
                     name="Circular Pipe",
                     children=[pipe_geometry],
                 ),
             ),
-            Translate(
-                vec=(24.0, 12.0, 0.0),
+            Transform(
+                translation=(24.0, 12.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBeam",
                     name="Elliptical Beam",
                     children=[elliptical_beam],
                 ),
             ),
-            Translate(
-                vec=(36.0, 12.0, 0.0),
+            Transform(
+                translation=(36.0, 12.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
                     name="Custom Extrusion",

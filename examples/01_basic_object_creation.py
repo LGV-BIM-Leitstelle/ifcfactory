@@ -38,8 +38,7 @@ from ifcfactory import (
     ExtrudedNgonAsMesh,
     MeshRepresentation,
     # Operations
-    Translate,
-    RotateZ,
+    Transform,
     Boolean,
     BooleanOperationTypes,
     # Materials and styling
@@ -62,28 +61,28 @@ def main(model, _, __, building):
                 name="Box Wall",
                 children=[Box(width=5.0, depth=0.3, height=3.0)],
             ),
-            Translate(
-                vec=(12.0, 0.0, 0.0),
+            Transform(
+                translation=(12.0, 0.0, 0.0),
                 item=BIMFactoryElement(type="IfcWall", name="Cube Wall", children=[Cube(size=4.0)]),
             ),
-            Translate(
-                vec=(24.0, 0.0, 0.0),
+            Transform(
+                translation=(24.0, 0.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcWall",
                     name="Cylinder Wall",
                     children=[Cylinder(radius=1.5, height=4.0)],
                 ),
             ),
-            Translate(
-                vec=(36.0, 0.0, 0.0),
+            Transform(
+                translation=(36.0, 0.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcSlab",
                     name="Extruded Slab",
                     children=[Extrusion(basis=Rect(width=5.0, height=2.5), depth=0.3)],
                 ),
             ),
-            Translate(
-                vec=(48.0, 0.0, 0.0),
+            Transform(
+                translation=(48.0, 0.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
                     name="Sphere Element",
