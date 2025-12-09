@@ -18,6 +18,17 @@ ifcfactory offers a declarative, composable framework for creating complex BIM g
 It leverages Pydantic models for strong type safety and validation, 
 while providing seamless integration with IfcOpenShell for reliable IFC file generation.
 
+The declarative structures in Python are automatically mapped to the most appropriate IFC mechanisms, for example:
+
+ - `Boolean(operation, children)`:
+   - In case of: *subtraction of element from element* -> `IfcRelVoidsElement` + `IfcOpeningElement`
+   - In case of: *subtraction of profile from profile* -> `IfcProfileDefWithVoids`
+   - In case of: *any item to item* -> `IfcBooleanResult`
+ - `Transform(item, translation, rotation)`:
+   - In case of: *element* -> Factored into `ObjectPlacement`
+   - In case of: *tesselation* -> Applied to coordinates
+   - Other cases: defer to `shape_builder` translate() and rotate() [when along "Z" axis]
+
 ## Structure
 
 ```
@@ -64,7 +75,7 @@ ifcfactory/
 
 ### Operations
 
-- **`Transform(matrix, item)`**: Apply a transformation (translation and/or rotation)
+- **`Transform(item, translation, rotation)`**: Apply a transformation (translation and/or rotation)
 - **`Boolean(operation, children)`**: Boolean operations (union, difference, intersection)
 - **`BooleanOperationTypes`**: Enum for boolean operation types
 
