@@ -197,6 +197,8 @@ transformations, boolean operations, materials, and property sets.
 
 ## Other examples
 
+You can run all examples with `python -m examples` or an individual examples as `python -m examples.05_transformations`. The examples are all written to disk as .ifc files and are validated using `ifcopenshell.validate`.
+
 ### Example 1 - Complete Building
 
 ![](img/Example_1_Complete_Building.png)

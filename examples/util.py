@@ -1,5 +1,7 @@
 import functools
 import re
+import subprocess
+import sys
 import ifcopenshell
 import ifcopenshell.api
 
@@ -39,6 +41,9 @@ def create_basic_ifc_setup(project_name: str):
             fn(model, project, site, building)
             filename = re.sub(r'\s*-\s*|\s+', '_', project_name) + '.ifc'
             model.write(filename)
+
+            # validate the model for any schema errors
+            subprocess.run([sys.executable, "-m", "ifcopenshell.validate", "--rules", filename], check=True)
 
             return model
 
