@@ -1,6 +1,6 @@
 [project]
 name = "ifcfactory"
-version = "0.1.0"
+version = "0.2.0"
 description = "A modular geometry system for creating BIM elements with composable geometry creation"
 authors = [
     {name = "Ahmed Salem", email = "ahmed.salem@gv.hamburg.de"}
