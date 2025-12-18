@@ -30,10 +30,12 @@ Homepage = "https://github.com/LGV-BIM-Leitstelle/ifcfactory"
 Repository = "https://github.com/LGV-BIM-Leitstelle/ifcfactory"
 Issues = "https://github.com/LGV-BIM-Leitstelle/ifcfactory/issues"
 
-
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"

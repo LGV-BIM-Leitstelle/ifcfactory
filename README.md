@@ -18,6 +18,17 @@ ifcfactory offers a declarative, composable framework for creating complex BIM g
 It leverages Pydantic models for strong type safety and validation, 
 while providing seamless integration with IfcOpenShell for reliable IFC file generation.
 
+The declarative structures in Python are automatically mapped to the most appropriate IFC mechanisms, for example:
+
+ - `Boolean(operation, children)`:
+   - In case of: *subtraction of element from element* -> `IfcRelVoidsElement` + `IfcOpeningElement`
+   - In case of: *subtraction of profile from profile* -> `IfcProfileDefWithVoids`
+   - In case of: *any item to item* -> `IfcBooleanResult`
+ - `Transform(item, translation, rotation)`:
+   - In case of: *element* -> Factored into `ObjectPlacement`
+   - In case of: *tesselation* -> Applied to coordinates
+   - Other cases: defer to `shape_builder` translate() and rotate() [when along "Z" axis]
+
 ## Structure
 
 ```
@@ -64,9 +75,7 @@ ifcfactory/
 
 ### Operations
 
-- **`Translate(vec, item)`**: Move geometry in 3D space
-- **`RotateZ(degrees, item)`**: Rotate around Z-axis
-- **`Transform(matrix, item)`**: Apply 4x4 transformation matrix
+- **`Transform(item, translation, rotation)`**: Apply a transformation (translation and/or rotation)
 - **`Boolean(operation, children)`**: Boolean operations (union, difference, intersection)
 - **`BooleanOperationTypes`**: Enum for boolean operation types
 
@@ -183,8 +192,44 @@ This example demonstrates:
 - Organizing elements in a hierarchical BIM structure
 - Saving the result as an IFC file
 
-For more comprehensive examples, see `examples/example_bimfactory.py` which demonstrates all features including
+For more comprehensive examples, see the sections below which demonstrate all features including
 transformations, boolean operations, materials, and property sets.
+
+## Other examples
+
+You can run all examples with `python -m examples` or an individual examples as `python -m examples.05_transformations`. The examples are all written to disk as .ifc files and are validated using `ifcopenshell.validate`.
+
+### Example 1 - Complete Building
+
+![](img/Example_1_Complete_Building.png)
+
+### Example 2 - Profile Extrusions
+
+![](img/Example_2_Profile_Extrusions.png)
+
+### Example 3 - Advanced Primitives
+
+![](img/Example_3_Advanced_Primitives.png)
+
+### Example 4 - Styled Elements
+
+![](img/Example_4_Styled_Elements.png)
+
+### Example 5 - Transformations
+
+![](img/Example_5_Transformations.png)
+
+### Example 6 - Boolean Operations
+
+![](img/Example_6_Boolean_Operations.png)
+
+### Example 7 - Property Sets
+
+![](img/Example_7_Property_Sets.png)
+
+### Example 8 - Type Objects
+
+![](img/Example_8_Type_Objects.png)
 
 ## Links
 
