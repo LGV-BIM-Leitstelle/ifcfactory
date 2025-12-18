@@ -107,9 +107,9 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
         elif item.is_a("IfcTessellatedFaceSet"):
             # Handle triangulated face sets by applying transformation to vertices
             vertices = np.array(list(item.Coordinates.CoordList))
-            # Homogenize coordinates
-            vertices = np.column_stack((vertices, np.ones_like(vertices)))
-            transformed_vertices = np.array([m4 @ v for v in vertices]).tolist()
+            # Homogenize coordinates (add column of 1s for 4x4 matrix multiplication)
+            vertices = np.column_stack((vertices, np.ones(len(vertices))))
+            transformed_vertices = np.array([transform @ v for v in vertices]).tolist()
             # Create new triangulated/tessellated face set with transformed vertices
             # with remaining attributes copied over from the original instance
             coord_list = model.createIfcCartesianPointList3D(transformed_vertices)
@@ -119,13 +119,14 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
         else:
             # @todo currently not immutable/reentrant
             shape_builder = ifcopenshell.util.shape_builder.ShapeBuilder(model)
-            # NB: May raise Exception(f"{c} is not supported for translate() method.")
-            shape_builder.translate(item, self.translation)
+            if has_translation:
+                # NB: May raise Exception(f"{c} is not supported for translate() method.")
+                shape_builder.translate(item, self.translation)
             if has_rotation:
                 angle, axis = self.rotation
                 if axis == "Z":
                     # NB: May raise Exception(f"{c} is not supported for rotate() method.")
-                    shape_builder.rotate(item, self.translation, counter_clockwise=True)
+                    shape_builder.rotate(item, angle, counter_clockwise=True)
                 else:
                     raise Exception(f"Rotation around axis other than Z not supported for {item.is_a()}")
         return item
