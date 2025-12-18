@@ -12,41 +12,19 @@ Developed in collaboration with Thomas Krijnen <mail@thomaskrijnen.com>
 """
 
 from examples.util import create_basic_ifc_setup
-import ifcopenshell
-import ifcopenshell.api
-import ifcopenshell.api.aggregate
-import ifcopenshell.api.context
-import ifcopenshell.api.root
-import ifcopenshell.api.unit
 
 from ifcfactory import (
     # Base classes
     BIMFactoryElement,
-    # 2D Profiles
-    Rect,
-    Circle,
-    Ellipse,
-    Polygon,
     # 3D Representations
-    Box,
-    Cube,
-    Cylinder,
     EllipticalCylinder,
     NgonCylinder,
-    Sphere,
-    Extrusion,
     ExtrudedNgonAsMesh,
     MeshRepresentation,
     # Operations
     Transform,
-    Boolean,
-    BooleanOperationTypes,
-    # Materials and styling
-    Style,
-    Material,
-    # Property sets
-    PropertySetTemplate,
 )
+
 
 @create_basic_ifc_setup("Example 3 - Advanced Primitives")
 def main(model, _, __, building):
@@ -123,6 +101,7 @@ def main(model, _, __, building):
             ),
         ],
     ).build(model)
+
 
 if __name__ == "__main__":
     main()

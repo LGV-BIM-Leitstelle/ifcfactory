@@ -12,45 +12,27 @@ Developed in collaboration with Thomas Krijnen <mail@thomaskrijnen.com>
 """
 
 from examples.util import create_basic_ifc_setup
-import ifcopenshell
-import ifcopenshell.api
-import ifcopenshell.api.aggregate
-import ifcopenshell.api.context
-import ifcopenshell.api.root
-import ifcopenshell.api.unit
 
 from ifcfactory import (
     # Base classes
     BIMFactoryElement,
     # 2D Profiles
     Rect,
-    Circle,
-    Ellipse,
-    Polygon,
     # 3D Representations
     Box,
-    Cube,
     Cylinder,
-    EllipticalCylinder,
-    NgonCylinder,
-    Sphere,
     Extrusion,
-    ExtrudedNgonAsMesh,
-    MeshRepresentation,
     # Operations
     Transform,
-    Boolean,
-    BooleanOperationTypes,
     # Materials and styling
     Style,
     Material,
-    # Property sets
-    PropertySetTemplate,
 )
 
 # Define materials with RGB colors
 wood = Material(name="WOOD01", category="wood", rgb=(0.65, 0.50, 0.30))
 steel = Material(name="STEEL01", category="steel", rgb=(0.7, 0.7, 0.7))
+
 
 @create_basic_ifc_setup("Example 4 - Styled Elements")
 def main(model, _, __, building):

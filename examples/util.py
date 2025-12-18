@@ -5,6 +5,7 @@ import sys
 import ifcopenshell
 import ifcopenshell.api
 
+
 def create_basic_ifc_setup(project_name: str):
     def decorator(fn):
         @functools.wraps(fn)
@@ -39,7 +40,7 @@ def create_basic_ifc_setup(project_name: str):
 
             print(f"Running example: {project_name}")
             fn(model, project, site, building)
-            filename = re.sub(r'\s*-\s*|\s+', '_', project_name) + '.ifc'
+            filename = re.sub(r"\s*-\s*|\s+", "_", project_name) + ".ifc"
             model.write(filename)
 
             # validate the model for any schema errors
@@ -48,5 +49,5 @@ def create_basic_ifc_setup(project_name: str):
             return model
 
         return inner
-    return decorator
 
+    return decorator
