@@ -6,6 +6,15 @@
 
 A modular geometry system for creating BIM elements with composable geometry creation.
 
+## About This Project
+
+**ifcfactory** is developed and maintained by **Freie und Hansestadt Hamburg, Landesbetrieb Geoinformation und Vermessung (LGV)**, **BIM-Leitstelle**
+
+This library is part of the [Connected Urban Twins](https://www.connectedurbantwins.de/) project ecosystem, providing a foundational geometry framework for automated IFC generation from urban data sources. It serves as a core dependency for [BIMFabrikHH_core](https://github.com/LGV-BIM-Leitstelle/BIMFabrikHH_core) and other BIM automation tools.
+
+**Author:** Ahmed Salem (BIM-Leitstelle, LGV Hamburg)  
+**In cooperation with:** Thomas Krijnen
+
 ## Quick Install
 
 ```bash
@@ -37,15 +46,12 @@ ifcfactory/
 ├── element.py                  # High-level BIM elements
 ├── primitives.py               # Geometric shapes (Box, Cylinder, Sphere, etc.)
 ├── operations.py               # Transformations and Boolean operations
-├── _internal/                  # Internal implementation (not for direct user access)
-│   ├── __init__.py            # Internal package marker
-│   ├── primitives_base.py     # Base classes and helper functions
-│   ├── material_base.py       # Materials and styling
-│   ├── unit_base.py           # Unit conversion utilities (pint ↔ IFC)
-│   └── pset_base.py           # Property set templates
-├── examples/
-│   └── example_bimfactory.py
-└── README.md
+└── _internal/                  # Internal implementation (not for direct user access)
+    ├── __init__.py            # Internal package marker
+    ├── primitives_base.py     # Base classes and helper functions
+    ├── material_base.py       # Materials and styling
+    ├── unit_base.py           # Unit conversion utilities (pint ↔ IFC)
+    └── pset_base.py           # Property set templates
 ```
 
 ## Public API
@@ -197,39 +203,39 @@ transformations, boolean operations, materials, and property sets.
 
 ## Other examples
 
-You can run all examples with `python -m examples` or an individual examples as `python -m examples.05_transformations`. The examples are all written to disk as .ifc files and are validated using `ifcopenshell.validate`.
+Additional examples are available in the [GitHub repository](https://github.com/LGV-BIM-Leitstelle/ifcfactory/tree/main/examples). All examples generate IFC files and include validation using `ifcopenshell.validate`.
 
 ### Example 1 - Complete Building
 
-![](img/Example_1_Complete_Building.png)
+![Example 1](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_1_Complete_Building.png)
 
 ### Example 2 - Profile Extrusions
 
-![](img/Example_2_Profile_Extrusions.png)
+![Example 2](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_2_Profile_Extrusions.png)
 
 ### Example 3 - Advanced Primitives
 
-![](img/Example_3_Advanced_Primitives.png)
+![Example 3](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_3_Advanced_Primitives.png)
 
 ### Example 4 - Styled Elements
 
-![](img/Example_4_Styled_Elements.png)
+![Example 4](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_4_Styled_Elements.png)
 
 ### Example 5 - Transformations
 
-![](img/Example_5_Transformations.png)
+![Example 5](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_5_Transformations.png)
 
 ### Example 6 - Boolean Operations
 
-![](img/Example_6_Boolean_Operations.png)
+![Example 6](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_6_Boolean_Operations.png)
 
 ### Example 7 - Property Sets
 
-![](img/Example_7_Property_Sets.png)
+![Example 7](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_7_Property_Sets.png)
 
 ### Example 8 - Type Objects
 
-![](img/Example_8_Type_Objects.png)
+![Example 8](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_8_Type_Objects.png)
 
 ## Links
 
