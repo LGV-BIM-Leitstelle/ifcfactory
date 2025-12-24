@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import warnings
 from enum import Enum
-from typing import List, Literal, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import ifc5d.qto
 import ifcopenshell
@@ -66,15 +66,24 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
 
     item: Union[RepresentationItem, Profile, ElementInterface]
     translation: Optional[Union[Tuple[float, float], Tuple[float, float, float]]] = None
-    rotation: Optional[Tuple[float, Literal["X", "Y", "Z"]]] = None  # (angle in degrees, axis) where axis is "X", "Y", or "Z"
+    rotation: Optional[Tuple[Union[int, float], str]] = None  # (angle in degrees, axis: "X", "Y", or "Z")
 
     # For accepting item
     model_config = {"arbitrary_types_allowed": True}
 
+    @model_validator(mode="after")
+    def validate_rotation_axis(self) -> "Transform":
+        """Validate that rotation axis is X, Y, or Z."""
+        if self.rotation is not None:
+            _, axis = self.rotation
+            if axis not in ("X", "Y", "Z"):
+                raise ValueError(f"Rotation axis must be 'X', 'Y', or 'Z', got '{axis}'")
+        return self
+
     def build(self, model: ifcopenshell.file) -> ifcopenshell.entity_instance:
         """
         Build a translated and/or rotated representation by applying a translation vector and/or optional rotation.
-        In terms of order: first translation is applied, than rotation.
+        In terms of order: first rotation is applied (around local origin), then translation.
 
         Args:
             model: The IFC model instance.
@@ -92,13 +101,12 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
 
         transform = np.eye(4)
 
-        if has_translation:
-            transform[0:len(self.translation), 3] = self.translation
-
         if has_rotation:
             angle, axis = self.rotation
-            rotation = ifcopenshell.util.placement.rotation(angle, axis)
-            transform = rotation @ transform
+            transform = ifcopenshell.util.placement.rotation(angle, axis)
+
+        if has_translation:
+            transform[0:len(self.translation), 3] = self.translation
 
         if item.is_a("IfcProduct"):
             # @todo currently not immutable/reentrant
@@ -119,9 +127,6 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
         else:
             # @todo currently not immutable/reentrant
             shape_builder = ifcopenshell.util.shape_builder.ShapeBuilder(model)
-            if has_translation:
-                # NB: May raise Exception(f"{c} is not supported for translate() method.")
-                shape_builder.translate(item, self.translation)
             if has_rotation:
                 angle, axis = self.rotation
                 if axis == "Z":
@@ -129,6 +134,9 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
                     shape_builder.rotate(item, angle, counter_clockwise=True)
                 else:
                     raise Exception(f"Rotation around axis other than Z not supported for {item.is_a()}")
+            if has_translation:
+                # NB: May raise Exception(f"{c} is not supported for translate() method.")
+                shape_builder.translate(item, self.translation)
         return item
 
 
