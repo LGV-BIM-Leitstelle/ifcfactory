@@ -207,35 +207,35 @@ Additional examples are available in the [GitHub repository](https://github.com/
 
 ### Example 1 - Complete Building
 
-![Example 1](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_1_Complete_Building.png)
+<img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_1_Complete_Building.png" width="500" alt="Example 1">
 
 ### Example 2 - Profile Extrusions
 
-![Example 2](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_2_Profile_Extrusions.png)
+<img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_2_Profile_Extrusions.png" width="500" alt="Example 2">
 
 ### Example 3 - Advanced Primitives
 
-![Example 3](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_3_Advanced_Primitives.png)
+<img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_3_Advanced_Primitives.png" width="500" alt="Example 3">
 
 ### Example 4 - Styled Elements
 
-![Example 4](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_4_Styled_Elements.png)
+<img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_4_Styled_Elements.png" width="500" alt="Example 4">
 
 ### Example 5 - Transformations
 
-![Example 5](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_5_Transformations.png)
+<img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_5_Transformations.png" width="500" alt="Example 5">
 
 ### Example 6 - Boolean Operations
 
-![Example 6](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_6_Boolean_Operations.png)
+<img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_6_Boolean_Operations.png" width="500" alt="Example 6">
 
 ### Example 7 - Property Sets
 
-![Example 7](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_7_Property_Sets.png)
+<img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_7_Property_Sets.png" width="500" alt="Example 7">
 
 ### Example 8 - Type Objects
 
-![Example 8](https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_8_Type_Objects.png)
+<img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_8_Type_Objects.png" width="500" alt="Example 8">
 
 ## Links
 
