@@ -241,6 +241,7 @@ Additional examples are available in the [GitHub repository](https://github.com/
 
 - **PyPI**: https://pypi.org/project/ifcfactory/
 - **GitHub**: https://github.com/LGV-BIM-Leitstelle/ifcfactory
+- **OpenCode**: https://gitlab.opencode.de/LGV-BIM-Leitstelle/ifcfactory
 - **Issues**: https://github.com/LGV-BIM-Leitstelle/ifcfactory/issues
 
 ## License
