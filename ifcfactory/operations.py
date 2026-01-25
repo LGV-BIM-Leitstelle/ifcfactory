@@ -117,7 +117,9 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
             vertices = np.array(list(item.Coordinates.CoordList))
             # Homogenize coordinates (add column of 1s for 4x4 matrix multiplication)
             vertices = np.column_stack((vertices, np.ones(len(vertices))))
-            transformed_vertices = np.array([transform @ v for v in vertices]).tolist()
+            transformed_vertices = np.array([transform @ v for v in vertices])
+            # Extract only first 3 components (x, y, z) - remove homogeneous coordinate w
+            transformed_vertices = transformed_vertices[:, :3].tolist()
             # Create new triangulated/tessellated face set with transformed vertices
             # with remaining attributes copied over from the original instance
             coord_list = model.createIfcCartesianPointList3D(transformed_vertices)
