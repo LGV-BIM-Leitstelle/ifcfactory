@@ -103,13 +103,15 @@ class Material(Primitive):
         ifcopenshell.api.style.add_surface_style(
             model,
             style=style,
-            ifc_class=("IfcSurfaceStyleShading" if model.schema != "IFC2X3" else "IfcSurfaceStyleRendering"),
+            ifc_class=(  # type: ignore[arg-type]
+                "IfcSurfaceStyleShading" if model.schema != "IFC2X3" else "IfcSurfaceStyleRendering"
+            ),
             attributes={
                 "SurfaceColour": {
                     "Name": None,
                     "Red": self.rgb[0],
                     "Green": self.rgb[1],
-                    "Blue": self.rgb[1],
+                    "Blue": self.rgb[2],
                 },
                 "Transparency": self.transparency,
             },
