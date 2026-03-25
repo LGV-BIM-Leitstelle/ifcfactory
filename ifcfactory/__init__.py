@@ -47,6 +47,7 @@ from .primitives import (
     EllipticalCylinder,
     ExtrudedNgonAsMesh,
     Extrusion,
+    HalfSpace,
     MeshRepresentation,
     NgonCylinder,
     Polygon,
@@ -80,6 +81,7 @@ __all__ = [
     "Cylinder",
     "EllipticalCylinder",
     "Sphere",
+    "HalfSpace",
     "MeshRepresentation",
     # Operations
     "BooleanOperationTypes",

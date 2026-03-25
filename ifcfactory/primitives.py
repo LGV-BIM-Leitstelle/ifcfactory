@@ -393,3 +393,23 @@ class MeshRepresentation(Primitive, RepresentationItem):
         """
         builder = ifcopenshell.util.shape_builder.ShapeBuilder(model)
         return builder.mesh(self.vertices, self.faces)
+
+
+class HalfSpace(Primitive, RepresentationItem):
+    """Infinite half-space for clipping geometry via ``Boolean.Difference``.
+
+    ``position``: point on the cutting plane. ``normal``: plane normal direction.
+    ``flip`` (IFC ``AgreementFlag``): ``False`` → solid on same side as normal;
+    ``True`` → solid on opposite side.
+    """
+
+    position: Tuple[float, float, float] = (0.0, 0.0, 0.0)
+    normal: Tuple[float, float, float] = (0.0, 0.0, 1.0)
+    flip: bool = False
+
+    def build(self, model: ifcopenshell.file) -> ifcopenshell.entity_instance:
+        point = model.createIfcCartesianPoint([float(v) for v in self.position])
+        axis = model.createIfcDirection([float(v) for v in self.normal])
+        placement = model.createIfcAxis2Placement3D(point, axis)
+        plane = model.createIfcPlane(placement)
+        return model.createIfcHalfSpaceSolid(plane, self.flip)

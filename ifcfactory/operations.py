@@ -27,7 +27,6 @@ and boolean operations.
 
 from __future__ import annotations
 
-import warnings
 from enum import Enum
 from typing import List, Optional, Tuple, Union
 
@@ -40,8 +39,6 @@ import ifcopenshell.util.shape_builder
 import numpy as np
 from pydantic import model_validator
 
-# Local imports
-from .element import BIMFactoryElement
 from ._internal.material_base import Style
 from ._internal.primitives_base import (
     ElementInterface,
@@ -51,6 +48,7 @@ from ._internal.primitives_base import (
     determine_type,
     get_qto_rules,
 )
+from .element import BIMFactoryElement
 
 
 class BooleanOperationTypes(str, Enum):
@@ -62,28 +60,51 @@ class BooleanOperationTypes(str, Enum):
 
 
 class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
-    """Translation and rotation transformation that moves and rotates geometry."""
+    """Translation and rotation transformation that moves and rotates geometry.
+
+    ``rotation`` accepts either:
+
+    * a **single tuple** ``(angle_degrees, axis)``
+    * a **list of tuples** ``[(angle1, axis1), (angle2, axis2), …]`` – applied in
+      list order (first entry applied to the item first, last entry applied last).
+
+    Both forms are equivalent: ``rotation=(90, "Y")`` is the same as ``rotation=[(90, "Y")]``.
+    """
 
     item: Union[RepresentationItem, Profile, ElementInterface]
     translation: Optional[Union[Tuple[float, float], Tuple[float, float, float]]] = None
-    rotation: Optional[Tuple[Union[int, float], str]] = None  # (angle in degrees, axis: "X", "Y", or "Z")
+    rotation: Optional[
+        Union[
+            Tuple[Union[int, float], str],
+            List[Tuple[Union[int, float], str]],
+        ]
+    ] = None
 
     # For accepting item
     model_config = {"arbitrary_types_allowed": True}
 
+    def _rotation_list(self) -> List[Tuple[Union[int, float], str]]:
+        """Normalise ``rotation`` to a list of (angle, axis) tuples."""
+        if self.rotation is None:
+            return []
+        if isinstance(self.rotation, list):
+            return self.rotation
+        return [self.rotation]  # single tuple → one-element list
+
     @model_validator(mode="after")
     def validate_rotation_axis(self) -> "Transform":
-        """Validate that rotation axis is X, Y, or Z."""
-        if self.rotation is not None:
-            _, axis = self.rotation
+        """Validate that every rotation axis is X, Y, or Z."""
+        for _, axis in self._rotation_list():
             if axis not in ("X", "Y", "Z"):
                 raise ValueError(f"Rotation axis must be 'X', 'Y', or 'Z', got '{axis}'")
         return self
 
     def build(self, model: ifcopenshell.file) -> ifcopenshell.entity_instance:
         """
-        Build a translated and/or rotated representation by applying a translation vector and/or optional rotation.
-        In terms of order: first rotation is applied (around local origin), then translation.
+        Build a translated and/or rotated representation.
+
+        Rotations are composed in list order (first entry applied to the item first),
+        then translation is applied last.
 
         Args:
             model: The IFC model instance.
@@ -95,18 +116,18 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
             Exception: If transformation is not supported for the given geometry type.
         """
         item = self.item.build(model)
-        
-        has_rotation = self.rotation is not None and abs(self.rotation[0]) > 1.e-9
+
+        rotations = [(a, ax) for a, ax in self._rotation_list() if abs(a) > 1.0e-9]
+        has_rotation = bool(rotations)
         has_translation = self.translation is not None
 
+        # Compose: T @ R_n @ … @ R_1 (list order from right to left, first entry applied first)
         transform = np.eye(4)
-
-        if has_rotation:
-            angle, axis = self.rotation
-            transform = ifcopenshell.util.placement.rotation(angle, axis)
+        for angle, axis in rotations:
+            transform = ifcopenshell.util.placement.rotation(angle, axis) @ transform
 
         if has_translation:
-            transform[0:len(self.translation), 3] = self.translation
+            transform[0 : len(self.translation), 3] = self.translation
 
         if item.is_a("IfcProduct"):
             # @todo currently not immutable/reentrant
@@ -123,19 +144,19 @@ class Transform(Primitive, RepresentationItem, Profile, ElementInterface):
             # Create new triangulated/tessellated face set with transformed vertices
             # with remaining attributes copied over from the original instance
             coord_list = model.createIfcCartesianPointList3D(transformed_vertices)
-            return model.create_entity(item.is_a(),
-                coord_list, *list(item)[1:]
-            )
+            return model.create_entity(item.is_a(), coord_list, *list(item)[1:])
         else:
             # @todo currently not immutable/reentrant
             shape_builder = ifcopenshell.util.shape_builder.ShapeBuilder(model)
             if has_rotation:
-                angle, axis = self.rotation
-                if axis == "Z":
-                    # NB: May raise Exception(f"{c} is not supported for rotate() method.")
-                    shape_builder.rotate(item, angle, counter_clockwise=True)
-                else:
-                    raise Exception(f"Rotation around axis other than Z not supported for {item.is_a()}")
+                # For RepresentationItems only Z-axis rotation is supported by ShapeBuilder.
+                # With multiple rotations, all must be Z (same limitation as before).
+                for angle, axis in rotations:
+                    if axis == "Z":
+                        # NB: May raise Exception(f"{c} is not supported for rotate() method.")
+                        shape_builder.rotate(item, angle, counter_clockwise=True)
+                    else:
+                        raise Exception(f"Rotation around axis other than Z not supported for {item.is_a()}")
             if has_translation:
                 # NB: May raise Exception(f"{c} is not supported for translate() method.")
                 shape_builder.translate(item, self.translation)
