@@ -57,6 +57,9 @@ from ._internal.primitives_base import (
 )
 from ._internal.pset_base import PropertySetTemplate
 
+# IFC4 schema is constant — fetch once at import time instead of per-element
+_IFC4_SCHEMA = ifcopenshell.ifcopenshell_wrapper.schema_by_name("IFC4")  # type: ignore
+
 
 class BIMFactoryElement(Primitive, ElementInterface):
     """Factory element that can contain multiple representation items or other elements.
@@ -109,13 +112,13 @@ class BIMFactoryElement(Primitive, ElementInterface):
     def _get_type_and_occurence_counts(self):
         num_types, num_occurrences = 0, 0
         for child in filter(None, map(get_type_bearing_element, self.children)):
-            # @todo hardcoded to ifc4
-            schema = ifcopenshell.ifcopenshell_wrapper.schema_by_name("IFC4")  # type: ignore
-            ent = schema.declaration_by_name(child.type)  # type: ignore
-
-            if "IfcTypeObject" in yield_super_types(ent):
+            ent = _IFC4_SCHEMA.declaration_by_name(child.type)  # type: ignore
+            # Materialise the generator into a set so both membership checks
+            # work correctly (a generator can only be traversed once).
+            supers = set(yield_super_types(ent))
+            if "IfcTypeObject" in supers:
                 num_types += 1
-            if "IfcProduct" in yield_super_types(ent):
+            if "IfcProduct" in supers:
                 num_occurrences += 1
         return num_types, num_occurrences
 
