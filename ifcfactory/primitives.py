@@ -409,7 +409,17 @@ class HalfSpace(Primitive, RepresentationItem):
 
     def build(self, model: ifcopenshell.file) -> ifcopenshell.entity_instance:
         point = model.createIfcCartesianPoint([float(v) for v in self.position])
-        axis = model.createIfcDirection([float(v) for v in self.normal])
-        placement = model.createIfcAxis2Placement3D(point, axis)
+        normal_floats = [float(v) for v in self.normal]
+        axis = model.createIfcDirection(normal_floats)
+
+        # IFC rule IfcAxis2Placement3D.AxisAndRefDirProvision: Axis and RefDirection
+        # must both be present or both absent.  Cross product gives a perpendicular
+        n = np.array(normal_floats, dtype=float)
+        n /= np.linalg.norm(n)
+        arb = np.array([1., 0., 0.]) if abs(n[0]) < 0.9 else np.array([0., 1., 0.])
+        ref = np.cross(n, arb)
+        ref_dir = model.createIfcDirection((ref / np.linalg.norm(ref)).tolist())
+
+        placement = model.createIfcAxis2Placement3D(point, axis, ref_dir)
         plane = model.createIfcPlane(placement)
         return model.createIfcHalfSpaceSolid(plane, self.flip)
