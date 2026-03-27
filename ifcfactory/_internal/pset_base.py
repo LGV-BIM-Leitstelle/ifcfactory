@@ -31,7 +31,7 @@ import pint
 from pydantic import AliasChoices, BaseModel, Field
 from pydantic_core import core_schema
 
-U = pint.UnitRegistry()
+from .unit_base import ureg as U
 
 # Define a proper TypeVar for the Quantity class
 T = TypeVar("T")

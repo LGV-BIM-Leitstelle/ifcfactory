@@ -195,6 +195,87 @@ def assign_color_to_element(
         raise TypeError(f"Unable to assign style to instance of type {representation.is_a()}")
 
 
+def _collect_layer_items(representation: ifcopenshell.entity_instance) -> list:
+    """Return the geometry items from *representation* that should be assigned to a layer."""
+    items = []
+    if representation.is_a() in [
+        "IfcExtrudedAreaSolid",
+        "IfcTriangulatedFaceSet",
+        "IfcPolygonalFaceSet",
+        "IfcMappedItem",
+        "IfcSweptDiskSolid",
+    ]:
+        items.append(representation)
+    if hasattr(representation, "Items") and representation.Items:
+        items.extend(representation.Items)
+    if representation.is_a("IfcShapeRepresentation"):
+        if getattr(representation, "RepresentationType", "") == "MappedRepresentation":
+            items.append(representation)
+    return list(dict.fromkeys(items))
+
+
+def _create_layer_style(
+    model: ifcopenshell.file,
+    color: tuple,
+    transparency: float,
+) -> ifcopenshell.entity_instance:
+    """Create and return an IfcSurfaceStyle for a CAD layer."""
+    layer_color = model.create_entity(
+        "IfcColourRgb", Name="LayerColor", Red=color[0], Green=color[1], Blue=color[2]
+    )
+    shading = model.create_entity(
+        "IfcSurfaceStyleShading", SurfaceColour=layer_color, Transparency=transparency
+    )
+    return model.create_entity(
+        "IfcSurfaceStyle", Name="LayerStyle", Side="POSITIVE", Styles=[shading]
+    )
+
+
+def _write_layer(
+    model: ifcopenshell.file,
+    layer_name: str,
+    surface_style: ifcopenshell.entity_instance,
+    items: list,
+) -> None:
+    """Find or create an IfcPresentationLayerWithStyle and set its AssignedItems."""
+    existing = next(
+        (lay for lay in model.by_type("IfcPresentationLayerWithStyle") if lay.Name == layer_name),
+        None,
+    )
+    if existing:
+        existing_items = list(existing.AssignedItems) if existing.AssignedItems else []
+        existing_items.extend(items)
+        existing.AssignedItems = list(dict.fromkeys(existing_items))
+    else:
+        model.create_entity(
+            "IfcPresentationLayerWithStyle",
+            Name=layer_name,
+            Description=None,
+            AssignedItems=items,
+            LayerOn=True,
+            LayerFrozen=False,
+            LayerBlocked=False,
+            LayerStyles=[surface_style],
+        )
+
+
+def _recurse_mapped_items(
+    model: ifcopenshell.file,
+    representation: ifcopenshell.entity_instance,
+    layer_name: str,
+    color: tuple,
+    transparency: float,
+) -> None:
+    """Recurse into IfcMappedItem sources so mapped representations get the same layer."""
+    if not (hasattr(representation, "Items") and representation.Items):
+        return
+    for item in representation.Items:
+        if item.is_a("IfcMappedItem") and item.MappingSource:
+            mapped_rep = item.MappingSource.MappedRepresentation
+            if mapped_rep:
+                assign_layer_to_representation(model, mapped_rep, layer_name, color, transparency)
+
+
 def assign_layer_to_representation(
     model,
     representation: ifcopenshell.entity_instance,
@@ -213,89 +294,43 @@ def assign_layer_to_representation(
         transparency: Transparency for the layer style (default: 0.0).
     """
     try:
-        items_to_assign = []
-
-        # Assign the representation itself if it's a geometric solid
-        if hasattr(representation, "is_a") and representation.is_a() in [
-            "IfcExtrudedAreaSolid",
-            "IfcTriangulatedFaceSet",
-            "IfcPolygonalFaceSet",
-            "IfcMappedItem",
-            "IfcSweptDiskSolid",
-        ]:
-            items_to_assign.append(representation)
-
-        # Add geometry items from the representation if present
-        if hasattr(representation, "Items") and representation.Items:
-            for item in representation.Items:
-                items_to_assign.append(item)
-                if hasattr(item, "is_a") and item.is_a("IfcMappedItem"):
-                    items_to_assign.append(item)
-
-        # Add the representation itself if it's a mapped representation
-        if hasattr(representation, "is_a") and representation.is_a("IfcShapeRepresentation"):
-            if getattr(representation, "RepresentationType", "") == "MappedRepresentation":
-                items_to_assign.append(representation)
-
-        # Remove duplicates
-        items_to_assign = list(dict.fromkeys(items_to_assign))
-
-        # Don't create layer if no items to assign (prevents BricsCAD errors)
-        if not items_to_assign:
+        items = _collect_layer_items(representation)
+        if not items:
             return
 
-        # Create surface style for the layer
-        layer_color = model.create_entity(
-            "IfcColourRgb",
-            Name="LayerColor",
-            Red=color[0],
-            Green=color[1],
-            Blue=color[2],
-        )
-        surface_style_shading = model.create_entity(
-            "IfcSurfaceStyleShading",
-            SurfaceColour=layer_color,
-            Transparency=transparency,
-        )
-        surface_style = model.create_entity(
-            "IfcSurfaceStyle",
-            Name="LayerStyle",
-            Side="POSITIVE",
-            Styles=[surface_style_shading],
-        )
-
-        # Check if layer already exists
-        existing_layer = None
-        for layer in model.by_type("IfcPresentationLayerWithStyle"):
-            if layer.Name == layer_name:
-                existing_layer = layer
-                break
-
-        if existing_layer:
-            existing_items = list(existing_layer.AssignedItems) if existing_layer.AssignedItems else []
-            existing_items.extend(items_to_assign)
-            existing_layer.AssignedItems = list(dict.fromkeys(existing_items))
-        else:
-            model.create_entity(
-                "IfcPresentationLayerWithStyle",
-                Name=layer_name,
-                Description=None,
-                AssignedItems=items_to_assign,
-                LayerOn=True,
-                LayerFrozen=False,
-                LayerBlocked=False,
-                LayerStyles=[surface_style],
+        if hasattr(model, "_layer_batch"):
+            # Batch path: build_in() installed _layer_batch so AssignedItems is
+            # written only once after the loop — O(n) instead of O(n²).
+            entry = model._layer_batch.setdefault(
+                layer_name, {"color": color, "transparency": transparency, "items": []}
             )
+            entry["items"].extend(items)
+            _recurse_mapped_items(model, representation, layer_name, color, transparency)
+            return
 
-        # Also assign mapped items to the layer
-        if hasattr(representation, "Items") and representation.Items:
-            for item in representation.Items:
-                if hasattr(item, "is_a") and item.is_a("IfcMappedItem"):
-                    # Handle mapped items recursively
-                    if hasattr(item, "MappingSource") and item.MappingSource:
-                        mapped_rep = item.MappingSource.MappedRepresentation
-                        if mapped_rep:
-                            assign_layer_to_representation(model, mapped_rep, layer_name, color, transparency)
+        surface_style = _create_layer_style(model, color, transparency)
+        _write_layer(model, layer_name, surface_style, items)
+        _recurse_mapped_items(model, representation, layer_name, color, transparency)
 
     except Exception as e:
         print(f"Warning: Could not assign layer '{layer_name}' to representation: {e}")
+
+
+def _apply_layers(model: ifcopenshell.file) -> None:
+    """Apply all deferred layer assignments to the IFC model in one pass.
+
+    During a ``build_in()`` call, ``assign_layer_to_representation`` accumulates
+    items in ``model._layer_batch`` instead of touching ``AssignedItems`` on every
+    element.  This function creates (or extends) each ``IfcPresentationLayerWithStyle``
+    exactly once, setting ``AssignedItems`` in a single write — O(n) instead of O(n²).
+    """
+    batch: dict = getattr(model, "_layer_batch", None)
+    if not batch:
+        return
+
+    for layer_name, data in batch.items():
+        items = list(dict.fromkeys(data["items"]))
+        if not items:
+            continue
+        surface_style = _create_layer_style(model, data["color"], data["transparency"])
+        _write_layer(model, layer_name, surface_style, items)
