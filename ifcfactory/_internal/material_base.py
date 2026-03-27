@@ -28,6 +28,7 @@ for IFC elements.
 from typing import Optional, Tuple
 
 import ifcopenshell
+from pydantic import field_validator
 import ifcopenshell.api.material
 import ifcopenshell.api.style
 
@@ -43,6 +44,19 @@ class Style(Primitive, RepresentationItem):
     cad_layer: Optional[str] = None
 
     model_config = {"arbitrary_types_allowed": True}
+
+    @field_validator("rgb", mode="before")
+    @classmethod
+    def _normalize_rgb(cls, v):
+        """Accept 0–255 integer tuples in addition to normalized [0, 1] floats.
+
+        Any tuple whose largest component exceeds 1 is treated as 0–255 and
+        divided by 255.  Normalized float tuples and comma-separated strings
+        pass through unchanged.
+        """
+        if isinstance(v, (tuple, list)) and any(x > 1.0 for x in v):
+            return tuple(x / 255.0 for x in v)
+        return v
 
     def build(self, model: ifcopenshell.file) -> ifcopenshell.entity_instance:
         """
@@ -88,6 +102,18 @@ class Material(Primitive):
     rgb: Tuple[float, float, float]  # Normalized RGB in [0, 1]
     transparency: Optional[float] = None
     _build_result: Optional[ifcopenshell.entity_instance] = None
+
+    @field_validator("rgb", mode="before")
+    @classmethod
+    def _normalize_rgb(cls, v):
+        """Accept 0–255 integer tuples in addition to normalized [0, 1] floats.
+
+        Any tuple whose largest component exceeds 1 is treated as 0–255 and
+        divided by 255.  Normalized float tuples pass through unchanged.
+        """
+        if isinstance(v, (tuple, list)) and any(x > 1.0 for x in v):
+            return tuple(x / 255.0 for x in v)
+        return v
 
     def build(self, model):
         if res := getattr(self, "_build_result", None):
@@ -220,15 +246,9 @@ def _create_layer_style(
     transparency: float,
 ) -> ifcopenshell.entity_instance:
     """Create and return an IfcSurfaceStyle for a CAD layer."""
-    layer_color = model.create_entity(
-        "IfcColourRgb", Name="LayerColor", Red=color[0], Green=color[1], Blue=color[2]
-    )
-    shading = model.create_entity(
-        "IfcSurfaceStyleShading", SurfaceColour=layer_color, Transparency=transparency
-    )
-    return model.create_entity(
-        "IfcSurfaceStyle", Name="LayerStyle", Side="POSITIVE", Styles=[shading]
-    )
+    layer_color = model.create_entity("IfcColourRgb", Name="LayerColor", Red=color[0], Green=color[1], Blue=color[2])
+    shading = model.create_entity("IfcSurfaceStyleShading", SurfaceColour=layer_color, Transparency=transparency)
+    return model.create_entity("IfcSurfaceStyle", Name="LayerStyle", Side="POSITIVE", Styles=[shading])
 
 
 def _write_layer(
