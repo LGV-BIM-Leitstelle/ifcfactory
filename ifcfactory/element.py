@@ -27,7 +27,7 @@ and operations into complete IFC elements.
 
 from __future__ import annotations
 
-from typing import Any, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 import ifc5d.qto
 import ifcopenshell
@@ -55,6 +55,7 @@ from ._internal.primitives_base import (
     process_quantity,
     yield_super_types,
 )
+from ._internal.material_base import _apply_layers
 from ._internal.pset_base import PropertySetTemplate
 
 # IFC4 schema is constant — fetch once at import time instead of per-element
@@ -236,7 +237,6 @@ class BIMFactoryElement(Primitive, ElementInterface):
             ifcopenshell.api.material.assign_material(model, products=[element], material=self.material.build(model))
 
         for data in self.psets:
-            # @todo this means propertyset data is never shared even if it's the same template instance in python
             pset = ifcopenshell.api.pset.add_pset(model, product=element, name=data.pset_name)
             di = data.model_dump(by_alias=True)
 
@@ -247,3 +247,47 @@ class BIMFactoryElement(Primitive, ElementInterface):
 
         self._build_result = element
         return element
+
+    @classmethod
+    def build_in(
+        cls,
+        model: ifcopenshell.file,
+        inst: ifcopenshell.entity_instance,
+        items: List[Union[RepresentationItem, ElementInterface]],
+        on_progress: Optional[Callable[[], None]] = None,
+    ) -> List[ifcopenshell.entity_instance]:
+        """Build multiple elements and assign them all to a spatial container
+        in one batched call.
+
+        This is O(n) in the number of items, compared to building each element
+        inside a ``BIMFactoryElement(inst=..., children=[...]).build(model)``
+        loop that calls ``assign_container`` individually — which is O(n²)
+        because ifcopenshell must extend the ``RelatedElements`` tuple on every
+        append.
+
+        Args:
+            model: The IFC model.
+            inst: Existing IFC spatial structure entity (IfcSite, IfcBuilding,
+                IfcBuildingStorey, …) that will contain the built elements.
+            items: ifcfactory items to build and place inside ``inst``.
+            on_progress: Optional zero-argument callback invoked after each
+                item is built, useful for progress-bar / logging integration.
+
+        Returns:
+            List of built IFC entity instances in the same order as ``items``.
+        """
+        model._layer_batch = {}
+        try:
+            entities = []
+            for item in items:
+                entities.append(item.build(model))
+                if on_progress is not None:
+                    on_progress()
+            if entities:
+                ifcopenshell.api.spatial.assign_container(
+                    model, products=entities, relating_structure=inst
+                )
+        finally:
+            _apply_layers(model)
+            del model._layer_batch
+        return entities
