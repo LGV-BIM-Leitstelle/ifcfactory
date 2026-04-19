@@ -237,6 +237,14 @@ Additional examples are available in the [GitHub repository](https://github.com/
 
 <img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_8_Type_Objects.png" width="500" alt="Example 8">
 
+### Example 9 - IFC Building Model
+
+<img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_9_Building_Model.png" width="500" alt="Example 9">
+
+### Example 10 - IfcOpenHouse
+
+<img src="https://raw.githubusercontent.com/LGV-BIM-Leitstelle/ifcfactory/main/img/Example_10_IfcOpenHouse.png" width="500" alt="Example 10">
+
 ## Links
 
 - **PyPI**: https://pypi.org/project/ifcfactory/
