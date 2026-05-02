@@ -44,6 +44,7 @@ import ifcopenshell.util.representation
 import ifcopenshell.util.shape_builder
 from pydantic import Field, model_validator
 
+from ._internal.material_base import apply_layers
 from ._internal.primitives_base import (
     ElementInterface,
     Primitive,
@@ -55,7 +56,6 @@ from ._internal.primitives_base import (
     process_quantity,
     yield_super_types,
 )
-from ._internal.material_base import _apply_layers
 from ._internal.pset_base import PropertySetTemplate
 
 # IFC4 schema is constant — fetch once at import time instead of per-element
@@ -255,39 +255,78 @@ class BIMFactoryElement(Primitive, ElementInterface):
         inst: ifcopenshell.entity_instance,
         items: List[Union[RepresentationItem, ElementInterface]],
         on_progress: Optional[Callable[[], None]] = None,
+        qsets: bool = False,
     ) -> List[ifcopenshell.entity_instance]:
-        """Build multiple elements and assign them all to a spatial container
-        in one batched call.
+        """Build multiple elements and assign them all to `inst` in one batched call.
 
-        This is O(n) in the number of items, compared to building each element
-        inside a ``BIMFactoryElement(inst=..., children=[...]).build(model)``
-        loop that calls ``assign_container`` individually — which is O(n²)
-        because ifcopenshell must extend the ``RelatedElements`` tuple on every
-        append.
+        The relationship used is chosen automatically:
+
+        * If `inst` and all built entities are spatial elements (`IfcSite`,
+          `IfcBuilding`, `IfcBuildingStorey`, …) the method calls
+          `assign_object` (`IfcRelAggregates`).
+        * Otherwise it calls `assign_container`
+          (`IfcRelContainedInSpatialStructure`) — the original behaviour for
+          physical products placed inside a spatial structure.
+
+        Both paths are O(n) in the number of items, compared to building each
+        element inside a `BIMFactoryElement(inst=..., children=[...]).build(model)`
+        loop that would extend the relationship tuple on every append — O(n²).
 
         Args:
             model: The IFC model.
             inst: Existing IFC spatial structure entity (IfcSite, IfcBuilding,
-                IfcBuildingStorey, …) that will contain the built elements.
-            items: ifcfactory items to build and place inside ``inst``.
+                IfcBuildingStorey, …) that will receive the built elements.
+            items: ifcfactory items to build and place inside `inst`.
             on_progress: Optional zero-argument callback invoked after each
                 item is built, useful for progress-bar / logging integration.
+            qsets: When `True`, call `batch_quantify` once on all built entities
+                after the loop instead of relying on per-element `qsets=True`.
+                All `BIMFactoryElement` items should have `qsets=False` when
+                using this option to avoid double quantification. Defaults to
+                `False`.
 
         Returns:
-            List of built IFC entity instances in the same order as ``items``.
+            List of built IFC entity instances in the same order as `items`.
         """
         model._layer_batch = {}
         try:
-            entities = []
+            entities: List[ifcopenshell.entity_instance] = []
             for item in items:
-                entities.append(item.build(model))
+                built = item.build(model)
+                if built is not None:
+                    entities.append(built)
                 if on_progress is not None:
                     on_progress()
             if entities:
-                ifcopenshell.api.spatial.assign_container(
-                    model, products=entities, relating_structure=inst
-                )
+                if is_hierarchy(inst) and all(map(is_hierarchy, entities)):
+                    ifcopenshell.api.aggregate.assign_object(model, products=entities, relating_object=inst)
+                else:
+                    ifcopenshell.api.spatial.assign_container(model, products=entities, relating_structure=inst)
         finally:
-            _apply_layers(model)
+            apply_layers(model)
             del model._layer_batch
+        if qsets and entities:
+            cls.batch_quantify(model)
         return entities
+
+    @staticmethod
+    def batch_quantify(model: ifcopenshell.file) -> None:
+        """Run `ifc5d` quantity-set calculation on all physical products in one pass.
+
+        Call this once after all elements are built instead of passing
+        `qsets=True` to each individual `BIMFactoryElement`. This avoids
+        the per-element overhead of fetching QTO rules and calling
+        `ifc5d.qto.quantify` separately for each entity (O(n) calls → O(1) call).
+
+        All `BIMFactoryElement` instances that should be covered must have
+        `qsets=False` to prevent double quantification.
+
+        Args:
+            model: The fully-built IFC model.
+        """
+        products = set(model.by_type("IfcProduct")) - set(model.by_type("IfcSpatialElement"))
+        if products:
+            ifc5d.qto.edit_qtos(
+                model,
+                ifc5d.qto.quantify(model, products, get_qto_rules(model)),
+            )

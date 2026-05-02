@@ -336,7 +336,7 @@ def assign_layer_to_representation(
         print(f"Warning: Could not assign layer '{layer_name}' to representation: {e}")
 
 
-def _apply_layers(model: ifcopenshell.file) -> None:
+def apply_layers(model: ifcopenshell.file) -> None:
     """Apply all deferred layer assignments to the IFC model in one pass.
 
     During a ``build_in()`` call, ``assign_layer_to_representation`` accumulates
