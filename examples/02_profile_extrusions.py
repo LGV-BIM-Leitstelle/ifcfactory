@@ -35,12 +35,17 @@ def main(model, _, __, building):
     circle_profile = Circle(radius=0.5)
     ellipse_profile = Ellipse(semi_axis1=1.5, semi_axis2=0.8)
     polygon_profile = Polygon(points=[(0, 0), (2, 0), (2, 1), (1, 2), (0, 1)])
+    polygon_with_void_profile = Polygon(
+        points=[(0, 0), (2, 0), (2, 1), (1, 2), (0, 1)],
+        voids=[[(0.5, 0.3), (1.5, 0.3), (1.5, 0.9), (1.0, 1.4), (0.5, 0.9)]],
+    )
 
     # Create extrusions
     beam_geometry = Extrusion(basis=rect_profile, depth=5.0)
     pipe_geometry = Extrusion(basis=circle_profile, depth=5.0)
     elliptical_beam = Extrusion(basis=ellipse_profile, depth=3.0)
     custom_extrusion = Extrusion(basis=polygon_profile, depth=4.0)
+    void_extrusion = Extrusion(basis=polygon_with_void_profile, depth=4.0)
 
     BIMFactoryElement(
         inst=building,
@@ -76,6 +81,14 @@ def main(model, _, __, building):
                     type="IfcBuildingElementProxy",
                     name="Custom Extrusion",
                     children=[custom_extrusion],
+                ),
+            ),
+            Transform(
+                translation=(48.0, 12.0, 0.0),
+                item=BIMFactoryElement(
+                    type="IfcBuildingElementProxy",
+                    name="Polygon Extrusion with Void",
+                    children=[void_extrusion],
                 ),
             ),
         ],

@@ -65,7 +65,7 @@ ifcfactory/
 - **`Rect(width, height)`**: Rectangular profile
 - **`Circle(radius)`**: Circular profile
 - **`Ellipse(semi_axis1, semi_axis2)`**: Elliptical profile
-- **`Polygon(points)`**: Arbitrary polygon from list of 2D points
+- **`Polygon(points, voids=[])`**: Arbitrary polygon from list of 2D points, with optional inner polygons as voids
 
 ### 3D Representations
 

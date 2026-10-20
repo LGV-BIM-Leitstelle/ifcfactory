@@ -122,24 +122,35 @@ class Ellipse(Primitive, Profile):
 
 
 class Polygon(Primitive, Profile):
-    """Polygon profile with arbitrary number of points"""
+    """Polygon profile with arbitrary number of points and optional inner voids"""
 
     points: List[Tuple[float, float]]
+    voids: List[List[Tuple[float, float]]] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_points(self) -> "Polygon":
         """
-        Validate that the polygon has at least 3 points.
+        Validate that the polygon and each of its voids have at least 3 points.
 
         Returns:
             Polygon: The validated polygon instance.
 
         Raises:
-            ValueError: If the polygon has fewer than 3 points.
+            ValueError: If the polygon or one of its voids has fewer than 3 points.
         """
         if len(self.points) < 3:
             raise ValueError("Polygon must have at least 3 points")
+        if any(len(void) < 3 for void in self.voids):
+            raise ValueError("Each polygon void must have at least 3 points")
         return self
+
+    @staticmethod
+    def _closed_polyline(model: ifcopenshell.file, coords: List[Tuple[float, float]]) -> ifcopenshell.entity_instance:
+        points = [model.createIfcCartesianPoint((float(x), float(y))) for x, y in coords]
+        # Close the polygon by adding the first point at the end
+        if points[0].Coordinates != points[-1].Coordinates:
+            points.append(points[0])
+        return model.createIfcPolyline(points)
 
     def build(self, model: ifcopenshell.file) -> ifcopenshell.entity_instance:
         """
@@ -149,16 +160,14 @@ class Polygon(Primitive, Profile):
             model: The IFC model instance.
 
         Returns:
-            ifcopenshell.entity_instance: The created polygon profile definition.
+            ifcopenshell.entity_instance: An IfcArbitraryClosedProfileDef, or an
+            IfcArbitraryProfileDefWithVoids when voids are given.
         """
-        # Create a polyline from the points
-        points = [model.createIfcCartesianPoint((float(x), float(y))) for x, y in self.points]
-        # Close the polygon by adding the first point at the end
-        if points[0].Coordinates != points[-1].Coordinates:
-            points.append(points[0])
-
-        polyline = model.createIfcPolyline(points)
-        return model.createIfcArbitraryClosedProfileDef("AREA", None, polyline)
+        outer = self._closed_polyline(model, self.points)
+        if not self.voids:
+            return model.createIfcArbitraryClosedProfileDef("AREA", None, outer)
+        inner = [self._closed_polyline(model, void) for void in self.voids]
+        return model.createIfcArbitraryProfileDefWithVoids("AREA", None, outer, inner)
 
 
 # Representation Item Classes
