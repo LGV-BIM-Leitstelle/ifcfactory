@@ -1,0 +1,40 @@
+# Mirrors main to GitLab whenever main is updated (e.g. a PR is merged)
+# GitLab mirror: https://gitlab.opencode.de/LGV-BIM-Leitstelle/ifcfactory
+#
+# Requires the repository secret GITLAB_MIRROR_TOKEN: a GitLab project access token
+# with scope write_repository whose role may force-push to main.
+name: Mirror main to GitLab
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-to-gitlab
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    name: Push main to GitLab
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Push main to GitLab
+        env:
+          GITLAB_MIRROR_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN }}
+          GITLAB_HOST: gitlab.opencode.de
+          GITLAB_REPO_PATH: LGV-BIM-Leitstelle/ifcfactory
+        run: |
+          git push --force \
+            "https://oauth2:${GITLAB_MIRROR_TOKEN}@${GITLAB_HOST}/${GITLAB_REPO_PATH}.git" \
+            HEAD:refs/heads/main
