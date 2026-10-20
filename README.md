@@ -66,6 +66,7 @@ ifcfactory/
 - **`Circle(radius)`**: Circular profile
 - **`Ellipse(semi_axis1, semi_axis2)`**: Elliptical profile
 - **`Polygon(points, voids=[])`**: Arbitrary polygon from list of 2D points, with optional inner polygons as voids
+- **`PolylineOffset(points, offset, miter_limit=2.0)`**: Wall footprint from a 2D centerline, offset by `offset` to the left and to the right. Sharp outer corners are cut off `miter_limit * offset` from the corner; a closed centerline gives a ring with the inner face as a void
 
 ### 3D Representations
 

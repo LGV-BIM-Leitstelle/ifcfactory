@@ -46,6 +46,7 @@ import ifcopenshell.util.representation
 import ifcopenshell.util.shape_builder
 import ifcopenshell.util.unit
 import numpy as np
+import shapely
 from icosphere import icosphere as icosphere_lib
 from pydantic import Field, PositiveFloat, model_validator
 
@@ -168,6 +169,72 @@ class Polygon(Primitive, Profile):
             return model.createIfcArbitraryClosedProfileDef("AREA", None, outer)
         inner = [self._closed_polyline(model, void) for void in self.voids]
         return model.createIfcArbitraryProfileDefWithVoids("AREA", None, outer, inner)
+
+
+class PolylineOffset(Primitive, Profile):
+    """Wall footprint from a 2D centerline offset to the left and to the right.
+
+    ``offset`` is the distance from the centerline to each wall face, so the wall
+    thickness is ``2 * offset``. Corners are mitered; a sharp outer corner is cut off
+    ``miter_limit * offset`` from the corner, measured along its bisector. If the first
+    and last points are equal, the centerline is closed and the profile is a ring whose
+    inner face is a void.
+    """
+
+    points: List[Tuple[float, float]]
+    offset: PositiveFloat
+    miter_limit: float = Field(default=2.0, ge=1.0)
+
+    @model_validator(mode="after")
+    def validate_points(self) -> "PolylineOffset":
+        """
+        Validate that the centerline offsets to a single outline.
+
+        Returns:
+            PolylineOffset: The validated instance.
+
+        Raises:
+            ValueError: If there are fewer than 2 points or the offset is not a single polygon.
+        """
+        if len(self.points) < 2:
+            raise ValueError("PolylineOffset must have at least 2 points")
+        footprint = self._footprint()
+        if not isinstance(footprint, shapely.Polygon) or footprint.is_empty:
+            raise ValueError("PolylineOffset centerline does not give a single wall outline")
+        return self
+
+    def _footprint(self) -> shapely.Geometry:
+        return shapely.LineString(self.points).buffer(
+            self.offset, cap_style="flat", join_style="mitre", mitre_limit=self.miter_limit
+        )
+
+    def rings(self) -> Tuple[List[Tuple[float, float]], List[List[Tuple[float, float]]]]:
+        """
+        Return the wall outline and its voids.
+
+        Returns:
+            The outer face, and the inner face as the only void for a closed centerline
+            (no voids for an open one).
+        """
+        footprint = self._footprint()
+        return (
+            list(footprint.exterior.coords)[:-1],
+            [list(ring.coords)[:-1] for ring in footprint.interiors],
+        )
+
+    def build(self, model: ifcopenshell.file) -> ifcopenshell.entity_instance:
+        """
+        Build the offset centerline as a closed profile.
+
+        Args:
+            model: The IFC model instance.
+
+        Returns:
+            ifcopenshell.entity_instance: An IfcArbitraryClosedProfileDef for an open
+            centerline, or an IfcArbitraryProfileDefWithVoids for a closed one.
+        """
+        outer, voids = self.rings()
+        return Polygon(points=outer, voids=voids).build(model)
 
 
 # Representation Item Classes

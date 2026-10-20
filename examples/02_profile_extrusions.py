@@ -21,6 +21,7 @@ from ifcfactory import (
     Circle,
     Ellipse,
     Polygon,
+    PolylineOffset,
     # 3D Representations
     Extrusion,
     # Operations
@@ -46,6 +47,9 @@ def main(model, _, __, building):
     elliptical_beam = Extrusion(basis=ellipse_profile, depth=3.0)
     custom_extrusion = Extrusion(basis=polygon_profile, depth=4.0)
     void_extrusion = Extrusion(basis=polygon_with_void_profile, depth=4.0)
+    # Centerline offset 0.15 m to each side (0.30 m wall), extruded 3 m high.
+    wall_profile = PolylineOffset(points=[(0.0, 0.0), (4.0, 0.0), (4.0, 3.0), (7.0, 5.0), (4.0, 7.0)], offset=0.15)
+    wall_extrusion = Extrusion(basis=wall_profile, depth=3.0)
 
     BIMFactoryElement(
         inst=building,
@@ -89,6 +93,14 @@ def main(model, _, __, building):
                     type="IfcBuildingElementProxy",
                     name="Polygon Extrusion with Void",
                     children=[void_extrusion],
+                ),
+            ),
+            Transform(
+                translation=(60.0, 12.0, 0.0),
+                item=BIMFactoryElement(
+                    type="IfcWall",
+                    name="Polyline Offset Wall",
+                    children=[wall_extrusion],
                 ),
             ),
         ],

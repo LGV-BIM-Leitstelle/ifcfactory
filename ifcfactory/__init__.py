@@ -51,6 +51,7 @@ from .primitives import (
     MeshRepresentation,
     NgonCylinder,
     Polygon,
+    PolylineOffset,
     Rect,
     Sphere,
 )
@@ -72,6 +73,7 @@ __all__ = [
     "Circle",
     "Ellipse",
     "Polygon",
+    "PolylineOffset",
     # Representation item classes
     "Extrusion",
     "Box",
