@@ -35,7 +35,7 @@ def main(model, _, __, building):
     BIMFactoryElement(
         inst=building,
         children=[
-            # Example 6: Row 5 (Y=60) - positions (0,5), (1,5), (2,5)
+            # Example 6: Row 5 (Y=60), about 2 m apart
             Transform(
                 translation=(0.0, 60.0, 0.0),
                 item=BIMFactoryElement(
@@ -66,7 +66,7 @@ def main(model, _, __, building):
         inst=building,
         children=[
             Transform(
-                translation=(12.0, 60.0, 0.0),
+                translation=(7.0, 60.0, 0.0),
                 item=Boolean(
                     operation=BooleanOperationTypes.Difference,
                     children=[
@@ -86,7 +86,7 @@ def main(model, _, __, building):
         inst=building,
         children=[
             Transform(
-                translation=(24.0, 60.0, 0.0),
+                translation=(14.0, 60.0, 0.0),
                 item=Boolean(
                     operation=BooleanOperationTypes.Difference,
                     children=[

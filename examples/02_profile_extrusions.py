@@ -54,7 +54,7 @@ def main(model, _, __, building):
     BIMFactoryElement(
         inst=building,
         children=[
-            # Example 2: Row 1 (Y=12) - positions (0,1), (1,1), (2,1), (3,1)
+            # Example 2: Row 1 (Y=12), about 2 m apart
             Transform(
                 translation=(0.0, 12.0, 0.0),
                 item=BIMFactoryElement(
@@ -64,7 +64,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(12.0, 12.0, 0.0),
+                translation=(4.5, 12.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcFlowSegment",
                     name="Circular Pipe",
@@ -72,7 +72,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(24.0, 12.0, 0.0),
+                translation=(8.5, 12.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBeam",
                     name="Elliptical Beam",
@@ -80,7 +80,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(36.0, 12.0, 0.0),
+                translation=(12.0, 12.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
                     name="Custom Extrusion",
@@ -88,7 +88,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(48.0, 12.0, 0.0),
+                translation=(16.0, 12.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
                     name="Polygon Extrusion with Void",
@@ -96,7 +96,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(60.0, 12.0, 0.0),
+                translation=(20.0, 12.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcWall",
                     name="Polyline Offset Wall",

@@ -36,18 +36,18 @@ def main(model, _, __, building):
     BIMFactoryElement(
         inst=building,
         children=[
-            # Example 1: Row 0 (Y=0) - positions (0,0), (1,0), (2,0), (3,0), (4,0)
+            # Example 1: Row 0 (Y=0), about 2 m apart
             BIMFactoryElement(
                 type="IfcWall",
                 name="Box Wall",
                 children=[Box(width=5.0, depth=0.3, height=3.0)],
             ),
             Transform(
-                translation=(12.0, 0.0, 0.0),
+                translation=(7.0, 0.0, 0.0),
                 item=BIMFactoryElement(type="IfcWall", name="Cube Wall", children=[Cube(size=4.0)]),
             ),
             Transform(
-                translation=(24.0, 0.0, 0.0),
+                translation=(14.5, 0.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcWall",
                     name="Cylinder Wall",
@@ -55,7 +55,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(36.0, 0.0, 0.0),
+                translation=(18.0, 0.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcSlab",
                     name="Extruded Slab",
@@ -63,7 +63,8 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(48.0, 0.0, 0.0),
+                # Sphere is centred on its origin; lift it by its radius so it rests on z=0
+                translation=(26.5, 0.0, 1.5),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
                     name="Sphere Element",

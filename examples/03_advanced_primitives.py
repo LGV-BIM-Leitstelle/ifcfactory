@@ -21,6 +21,7 @@ from ifcfactory import (
     NgonCylinder,
     ExtrudedNgonAsMesh,
     MeshRepresentation,
+    SweptDisk,
     # Operations
     Transform,
 )
@@ -31,7 +32,7 @@ def main(model, _, __, building):
     # Advanced primitive shapes
     elliptical_cylinder = EllipticalCylinder(semi_axis1=1.5, semi_axis2=1.0, height=3.0)
 
-    ngon_cylinder = NgonCylinder(radius=1.2, height=2.5, sides=8)
+    ngon_cylinder = NgonCylinder(radius=1.2, height=2.5, segments=8)
 
     # Create hexagon mesh
     extruded_ngon_mesh = ExtrudedNgonAsMesh(
@@ -63,10 +64,16 @@ def main(model, _, __, building):
     ]
     custom_mesh = MeshRepresentation(vertices=vertices, faces=faces)
 
+    # Rail frame: a disk swept along a 2 m wide, 1 m high path
+    swept_disk = SweptDisk(
+        points=[(0.0, 0.0, 0.0), (0.0, 0.0, 1.0), (2.0, 0.0, 1.0), (2.0, 0.0, 0.0)],
+        radius=0.05,
+    )
+
     BIMFactoryElement(
         inst=building,
         children=[
-            # Example 3: Row 2 (Y=24) - positions (0,2), (1,2), (2,2), (3,2)
+            # Example 3: Row 2 (Y=24), 4 m apart
             Transform(
                 translation=(0.0, 24.0, 0.0),
                 item=BIMFactoryElement(
@@ -76,7 +83,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(12.0, 24.0, 0.0),
+                translation=(4.0, 24.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcColumn",
                     name="Octagonal Column",
@@ -84,7 +91,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(24.0, 24.0, 0.0),
+                translation=(8.0, 24.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
                     name="Hexagonal Mesh",
@@ -92,11 +99,19 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(36.0, 24.0, 0.0),
+                translation=(12.0, 24.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
                     name="Custom Pyramid",
                     children=[custom_mesh],
+                ),
+            ),
+            Transform(
+                translation=(16.0, 24.0, 0.0),
+                item=BIMFactoryElement(
+                    type="IfcRailing",
+                    name="Swept Disk Railing",
+                    children=[swept_disk],
                 ),
             ),
         ],

@@ -52,7 +52,7 @@ def main(model, _, __, building):
     BIMFactoryElement(
         inst=building,
         children=[
-            # Example 5: Row 4 (Y=48) - positions (0,4), (1,4), (2,4), (3,4)
+            # Example 5: Row 4 (Y=48), about 2 m apart
             Transform(
                 translation=(0.0, 48.0, 0.0),
                 item=BIMFactoryElement(
@@ -62,7 +62,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(12.0, 48.0, 0.0),
+                translation=(4.0, 48.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
                     name="Moved Box",
@@ -70,7 +70,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(24.0, 48.0, 0.0),
+                translation=(9.5, 48.0, 0.0),
                 item=Transform(
                     rotation=(45.0, "Z"),
                     item=BIMFactoryElement(
@@ -81,7 +81,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(36.0, 48.0, 0.0),
+                translation=(14.0, 48.0, 0.0),
                 item=Transform(
                     rotation=(30.0, "Z"),
                     item=BIMFactoryElement(
@@ -91,9 +91,9 @@ def main(model, _, __, building):
                     ),
                 ),
             ),
-            # Example 5: Row 5 (Y=36) - Same as above but using single Transform operation
+            # Example 5: Row 5 (Y=43) - Same as above but using single Transform operation
             Transform(
-                translation=(0.0, 36.0, 0.0),
+                translation=(0.0, 43.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
                     name="Original Box (single)",
@@ -101,7 +101,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(12.0, 36.0, 0.0),
+                translation=(4.0, 43.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
                     name="Moved Box (single)",
@@ -109,7 +109,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(24.0, 36.0, 0.0),
+                translation=(9.5, 43.0, 0.0),
                 rotation=(45.0, "Z"),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",
@@ -118,7 +118,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(36.0, 36.0, 0.0),
+                translation=(14.0, 43.0, 0.0),
                 rotation=(30.0, "Z"),
                 item=BIMFactoryElement(
                     type="IfcBuildingElementProxy",

@@ -11,6 +11,8 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in map(os.path.abspath, sys.path):
     sys.path.insert(0, project_root)
 
+from examples.util import GROUND_PLANE_NAME  # noqa: E402
+
 
 def discover_example_modules():
     for pkg in pkgutil.walk_packages(
@@ -56,7 +58,9 @@ def test_example_main(module_name):
         assert walls["Cylinder Wall"].Representation.Representations[0].Items[0].SweptArea.is_a("IfcCircleProfileDef")
     elif module_name == "examples.08_type_objects":
         # Assert that the example using type objects results in mapped representations (instanced geometries)
-        reps = result.by_type("IfcShapeRepresentation")
+        (ground,) = [e for e in result.by_type("IfcGeographicElement") if e.Name == GROUND_PLANE_NAME]
+        ground_reps = set(ground.Representation.Representations)
+        reps = [r for r in result.by_type("IfcShapeRepresentation") if r not in ground_reps]
         assert len(reps) == 60
         assert reps[0].RepresentationType == "SweptSolid"
         assert all(r.RepresentationType == "MappedRepresentation" for r in reps[1:])

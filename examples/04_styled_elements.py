@@ -45,7 +45,7 @@ def main(model, _, __, building):
     BIMFactoryElement(
         inst=building,
         children=[
-            # Example 4: Row 3 (Y=36) - positions (0,3), (1,3), (2,3)
+            # Example 4: Row 3 (Y=36), about 2 m apart
             Transform(
                 translation=(0.0, 36.0, 0.0),
                 item=BIMFactoryElement(
@@ -55,7 +55,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(12.0, 36.0, 0.0),
+                translation=(6.5, 36.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcColumn",
                     name="Wood Column",
@@ -64,7 +64,7 @@ def main(model, _, __, building):
                 ),
             ),
             Transform(
-                translation=(24.0, 36.0, 0.0),
+                translation=(9.0, 36.0, 0.0),
                 item=BIMFactoryElement(
                     type="IfcBeam",
                     name="Steel Beam",
