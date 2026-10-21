@@ -74,9 +74,10 @@ ifcfactory/
 - **`Cube(size)`**: Cube with equal dimensions
 - **`Cylinder(radius, height)`**: Circular cylinder
 - **`EllipticalCylinder(semi_axis1, semi_axis2, height)`**: Elliptical cylinder
-- **`NgonCylinder(radius, height, sides)`**: N-sided cylinder
+- **`NgonCylinder(radius, height, segments=8)`**: N-sided cylinder
 - **`Sphere(radius, detail=1)`**: Icosphere with configurable detail
 - **`Extrusion(basis, depth)`**: Extrude any 2D profile
+- **`SweptDisk(points, radius, arc_points=[])`**: Disk of `radius` swept along a 3D path (`IfcSweptDiskSolid`), e.g. a pipe or a bent rail. Each index in `arc_points` turns that inner point into the middle of a circular arc
 - **`ExtrudedNgonAsMesh(basis, height)`**: N-sided extrusion as mesh
 - **`MeshRepresentation(vertices, faces)`**: Custom mesh geometry
 

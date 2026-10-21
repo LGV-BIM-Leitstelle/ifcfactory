@@ -272,6 +272,49 @@ class Extrusion(Primitive, RepresentationItem):
         return builder.extrude(basis, self.depth)
 
 
+class SweptDisk(Primitive, RepresentationItem):
+    """Circular disk of ``radius`` swept along a 3D path, e.g. a pipe or a bent rail.
+
+    Each index in ``arc_points`` makes that point the middle of a circular arc through
+    its two neighbours, so it cannot be the first or the last point.
+    """
+
+    points: List[Tuple[float, float, float]]
+    radius: PositiveFloat
+    arc_points: List[int] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_points(self) -> "SweptDisk":
+        """
+        Validate the path and its arc points.
+
+        Returns:
+            SweptDisk: The validated instance.
+
+        Raises:
+            ValueError: If there are fewer than 2 points or an arc point has no neighbour on both sides.
+        """
+        if len(self.points) < 2:
+            raise ValueError("SweptDisk path must have at least 2 points")
+        if any(not 0 < i < len(self.points) - 1 for i in self.arc_points):
+            raise ValueError("SweptDisk arc points must be inner points of the path")
+        return self
+
+    def build(self, model: ifcopenshell.file) -> ifcopenshell.entity_instance:
+        """
+        Build the swept disk solid.
+
+        Args:
+            model: The IFC model instance.
+
+        Returns:
+            ifcopenshell.entity_instance: The created IfcSweptDiskSolid.
+        """
+        builder = ifcopenshell.util.shape_builder.ShapeBuilder(model)
+        path = builder.polyline([tuple(map(float, p)) for p in self.points], arc_points=self.arc_points)
+        return builder.create_swept_disk_solid(path, self.radius)
+
+
 class Box(Primitive, RepresentationItem):
     """Box representation item with width, depth, and height."""
 

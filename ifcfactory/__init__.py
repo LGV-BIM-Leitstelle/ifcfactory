@@ -54,6 +54,7 @@ from .primitives import (
     PolylineOffset,
     Rect,
     Sphere,
+    SweptDisk,
 )
 
 # Import property set base
@@ -76,6 +77,7 @@ __all__ = [
     "PolylineOffset",
     # Representation item classes
     "Extrusion",
+    "SweptDisk",
     "Box",
     "Cube",
     "ExtrudedNgonAsMesh",
